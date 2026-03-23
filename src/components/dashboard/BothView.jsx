@@ -5,19 +5,21 @@ import HirerView from './HirerView'
 import ProviderView from './ProviderView'
 
 const T = {
-  navy:   '#0F172A',
-  coral:  '#E8523A',
-  border: '#E2E8F0',
-  bg:     '#F8FAFC',
+  navy:      '#0F172A',
+  coral:     '#E8523A',
+  border:    '#E2E8F0',
   textLight: '#94A3B8',
 }
 
-export default function BothView({ profile, recentJobs, myJobs, pendingReviews = [] }) {
+export default function BothView({
+  profile, recentJobs, myJobs, pendingReviews,
+  recentBids, feedItems, unreadMessages,
+  hirerStats, providerStats, topProviders
+}) {
   const [activeTab, setActiveTab] = useState('hirer')
 
   return (
     <div>
-      {/* Slim tab switcher */}
       <div
         className="inline-flex items-center mb-5 border"
         style={{ borderColor: T.border, borderRadius: 4, background: '#fff', padding: 3 }}
@@ -40,10 +42,27 @@ export default function BothView({ profile, recentJobs, myJobs, pendingReviews =
         ))}
       </div>
 
-      {activeTab === 'hirer'
-        ? <HirerView profile={profile} myJobs={myJobs} pendingReviews={pendingReviews} />
-        : <ProviderView profile={profile} recentJobs={recentJobs} pendingReviews={pendingReviews} />
-      }
+      {activeTab === 'hirer' ? (
+        <HirerView
+          profile={profile}
+          myJobs={myJobs}
+          pendingReviews={pendingReviews}
+          recentBids={recentBids}
+          feedItems={feedItems}
+          unreadMessages={unreadMessages}
+          hirerStats={hirerStats}
+          topProviders={topProviders}
+        />
+      ) : (
+        <ProviderView
+          profile={profile}
+          recentJobs={recentJobs}
+          pendingReviews={pendingReviews}
+          providerStats={providerStats}
+          unreadMessages={unreadMessages}
+          topProviders={topProviders}
+        />
+      )}
     </div>
   )
 }

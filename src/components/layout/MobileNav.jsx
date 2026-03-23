@@ -9,7 +9,7 @@ const links = [
   { href: '/jobs',      label: 'Jobs',     icon: Briefcase       },
   { href: '/providers', label: 'Explore',  icon: Search          },
   { href: '/messages',  label: 'Messages', icon: MessageSquare   },
-  { href: '/profile',   label: 'Profile',  icon: User            },
+  { href: '/profile/edit',   label: 'Profile',  icon: User            },
 ]
 
 // Pages where the bottom nav should NOT appear
