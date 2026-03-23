@@ -208,20 +208,21 @@ export default function Conversation({ conversation, initialMessages, currentUse
       </div>
 
       {/* Messages area */}
-      <div
-        className="flex-1 overflow-y-auto bg-white border-x px-4 py-4"
-        style={{ borderColor: T.border }}
-      >
-        {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full py-16">
-            <p className="text-sm font-medium" style={{ color: T.textMuted }}>
-              No messages yet
-            </p>
-            <p className="text-xs mt-1" style={{ color: T.textLight }}>
-              Start the conversation below
-            </p>
-          </div>
-        )}
+<div
+  className="flex-1 overflow-y-auto px-4 py-4"
+  style={{
+    borderColor: T.border,
+    borderLeft: `1px solid ${T.border}`,
+    borderRight: `1px solid ${T.border}`,
+    backgroundColor: '#E8EDF5',
+    backgroundImage: `
+      radial-gradient(circle at 10px 1px, rgba(255,255,255,0.6) 1px, transparent 0.5),
+      radial-gradient(circle at 10px 1px, rgba(255,255,255,0.3) 1px, transparent 0.5)
+    `,
+    backgroundSize: '24px 24px, 12px 12px',
+    backgroundPosition: '0 0, 6px 6px',
+  }}
+>
 
         {Object.entries(grouped).map(([date, msgs]) => (
           <div key={date} className="mb-4">

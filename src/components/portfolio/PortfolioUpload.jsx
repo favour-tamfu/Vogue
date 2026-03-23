@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import {
   Upload, X, CheckCircle, AlertCircle,
   Image, Trash2, Eye, EyeOff, ArrowLeft,
-  Plus
+  Plus, Play
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -40,6 +40,7 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
   // New item form state
   const [preview, setPreview]     = useState(null)
   const [file, setFile]           = useState(null)
+  const [fileType, setFileType]   = useState('image')
   const [form, setForm]           = useState({
     title:       '',
     description: '',
@@ -56,32 +57,40 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
     const selected = e.target.files[0]
     if (!selected) return
 
-    const allowed = ['image/jpeg', 'image/png', 'image/webp']
+    const allowedImages = ['image/jpeg', 'image/png', 'image/webp']
+    const allowedVideos = ['video/mp4', 'video/quicktime', 'video/webm']
+    const allowed = [...allowedImages, ...allowedVideos]
+
     if (!allowed.includes(selected.type)) {
-      setError('Please upload a JPG, PNG, or WebP image')
+      setError('Please upload a JPG, PNG, WebP image or MP4/MOV/WebM video')
       return
     }
 
-    if (selected.size > 10 * 1024 * 1024) {
-      setError('Image must be under 10MB')
+    const maxSize = selected.type.startsWith('video/') ? 100 : 10
+    if (selected.size > maxSize * 1024 * 1024) {
+      setError(`File must be under ${maxSize}MB`)
       return
     }
 
     setFile(selected)
+    setFileType(selected.type.startsWith('video/') ? 'video' : 'image')
     setError(null)
 
-    const reader = new FileReader()
-    reader.onload = e => setPreview(e.target.result)
-    reader.readAsDataURL(selected)
+    if (selected.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = e => setPreview(e.target.result)
+      reader.readAsDataURL(selected)
+    } else {
+      setPreview('video')
+    }
   }
 
   const handleUpload = async () => {
-    if (!file) { setError('Please select an image'); return }
+    if (!file) { setError('Please select a file'); return }
     setUploading(true)
     setError(null)
 
     try {
-      // Upload image to Supabase Storage
       const ext      = file.name.split('.').pop()
       const fileName = `${profile.id}/${Date.now()}.${ext}`
 
@@ -95,17 +104,17 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
         return
       }
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('portfolio')
         .getPublicUrl(fileName)
 
-      // Save to database
       const { data: newItem, error: dbError } = await supabase
         .from('portfolio_items')
         .insert({
           provider_id:  profile.id,
-          image_url:    publicUrl,
+          image_url:    fileType === 'image' ? publicUrl : null,
+          video_url:    fileType === 'video' ? publicUrl : null,
+          media_type:   fileType,
           title:        form.title       || null,
           description:  form.description || null,
           event_type:   form.event_type  || null,
@@ -122,15 +131,13 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
         return
       }
 
-      // Add to local state
       setPortfolio(prev => [newItem, ...prev])
-
-      // Reset form
       setFile(null)
       setPreview(null)
+      setFileType('image')
       setForm({ title: '', description: '', event_type: '', category_id: '', event_date: '' })
       setShowForm(false)
-      setSuccess('Photo uploaded successfully!')
+      setSuccess(`${fileType === 'video' ? 'Video' : 'Photo'} uploaded successfully!`)
       setTimeout(() => setSuccess(null), 3000)
 
     } catch (e) {
@@ -144,18 +151,16 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
     if (!confirm('Delete this portfolio item?')) return
     setDeleting(item.id)
 
-    // Extract filename from URL
-    const urlParts   = item.image_url.split('/portfolio/')
-    const fileName   = urlParts[1]
-
-    // Delete from storage
-    if (fileName) {
-      await supabase.storage.from('portfolio').remove([fileName])
+    const mediaUrl = item.image_url || item.video_url
+    if (mediaUrl) {
+      const urlParts = mediaUrl.split('/portfolio/')
+      const fileName = urlParts[1]
+      if (fileName) {
+        await supabase.storage.from('portfolio').remove([fileName])
+      }
     }
 
-    // Delete from database
     await supabase.from('portfolio_items').delete().eq('id', item.id)
-
     setPortfolio(prev => prev.filter(p => p.id !== item.id))
     setDeleting(null)
   }
@@ -171,6 +176,14 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
     if (data) {
       setPortfolio(prev => prev.map(p => p.id === item.id ? data : p))
     }
+  }
+
+  const resetForm = () => {
+    setShowForm(false)
+    setFile(null)
+    setPreview(null)
+    setFileType('image')
+    setError(null)
   }
 
   return (
@@ -196,7 +209,7 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
           style={{ background: T.coral, borderRadius: 4 }}
         >
           <Plus size={14} strokeWidth={2.5} />
-          Add Photo
+          Add Media
         </button>
       </div>
 
@@ -218,19 +231,19 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
           <div className="flex items-center justify-between mb-4 pb-4 border-b"
             style={{ borderColor: T.border }}>
             <h2 className="text-sm font-semibold" style={{ color: T.navy }}>
-              Upload New Photo
+              Upload Photo or Video
             </h2>
-            <button onClick={() => { setShowForm(false); setFile(null); setPreview(null) }}>
+            <button onClick={resetForm}>
               <X size={16} strokeWidth={1.5} style={{ color: T.textLight }} />
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
-            {/* Image upload */}
+            {/* File upload */}
             <div>
               <p className="text-xs font-semibold mb-2" style={{ color: T.navyMid }}>
-                Image <span style={{ color: T.coral }}>*</span>
+                Photo or Video <span style={{ color: T.coral }}>*</span>
               </p>
               <label
                 className="flex flex-col items-center justify-center border-2 border-dashed cursor-pointer transition-colors hover:bg-slate-50"
@@ -243,11 +256,25 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
                 <input
                   ref={fileRef}
                   type="file"
-                  accept="image/jpeg,image/png,image/webp"
+                  accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
                   onChange={handleFileSelect}
                   className="hidden"
                 />
-                {preview ? (
+
+                {preview === 'video' ? (
+                  <div className="text-center p-6">
+                    <div
+                      className="w-14 h-14 flex items-center justify-center mx-auto mb-2 text-white"
+                      style={{ background: T.navy, borderRadius: 8 }}
+                    >
+                      <Play size={24} strokeWidth={1.5} />
+                    </div>
+                    <p className="text-xs font-medium" style={{ color: T.coral }}>{file?.name}</p>
+                    <p className="text-xs mt-1" style={{ color: T.textLight }}>
+                      Video ready · Click to change
+                    </p>
+                  </div>
+                ) : preview ? (
                   <img
                     src={preview}
                     alt="Preview"
@@ -262,7 +289,10 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
                       Click to upload
                     </p>
                     <p className="text-xs mt-1" style={{ color: T.textLight }}>
-                      JPG, PNG, WebP — max 10MB
+                      Images: JPG, PNG, WebP — max 10MB
+                    </p>
+                    <p className="text-xs" style={{ color: T.textLight }}>
+                      Videos: MP4, MOV, WebM — max 100MB
                     </p>
                   </div>
                 )}
@@ -367,10 +397,10 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
               style={{ background: T.coral, borderRadius: 4 }}
             >
               <Upload size={14} strokeWidth={2} />
-              {uploading ? 'Uploading...' : 'Upload Photo'}
+              {uploading ? 'Uploading...' : `Upload ${fileType === 'video' ? 'Video' : 'Photo'}`}
             </button>
             <button
-              onClick={() => { setShowForm(false); setFile(null); setPreview(null) }}
+              onClick={resetForm}
               className="px-4 py-2 text-sm font-medium border transition-colors hover:bg-slate-50"
               style={{ borderColor: T.border, borderRadius: 4, color: T.textMuted }}
             >
@@ -392,97 +422,104 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
             No portfolio items yet
           </p>
           <p className="text-xs mt-1 mb-4" style={{ color: T.textLight }}>
-            Upload your best event photos to attract more hirers
+            Upload your best event photos and videos to attract more hirers
           </p>
           <button
             onClick={() => setShowForm(true)}
             className="text-sm font-semibold px-5 py-2 text-white"
             style={{ background: T.coral, borderRadius: 4 }}
           >
-            Upload First Photo
+            Upload First Item
           </button>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {portfolio.map(item => (
-            <div
-              key={item.id}
-              className="relative group border overflow-hidden"
-              style={{ borderColor: T.border, borderRadius: 4 }}
-            >
-              {/* Image */}
-              <div className="aspect-square bg-gray-100 overflow-hidden">
-                {item.image_url ? (
-                  <img
-                    src={item.image_url}
-                    alt={item.title || 'Portfolio'}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Image size={24} strokeWidth={1} style={{ color: T.textLight }} />
-                  </div>
-                )}
-              </div>
-
-              {/* Overlay on hover */}
+          {portfolio.map(item => {
+            const isVideo = item.media_type === 'video' || item.video_url
+            return (
               <div
-                className="absolute inset-0 flex flex-col justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: 'rgba(15,23,42,0.6)' }}
+                key={item.id}
+                className="relative group border overflow-hidden"
+                style={{ borderColor: T.border, borderRadius: 4 }}
               >
-                {/* Top — unpublished badge */}
-                {!item.is_published && (
-                  <div>
-                    <span
-                      className="text-xs font-medium px-2 py-0.5 text-white"
-                      style={{ background: 'rgba(0,0,0,0.5)', borderRadius: 3 }}
-                    >
-                      Hidden
-                    </span>
-                  </div>
-                )}
-
-                {/* Bottom — actions */}
-                <div className="flex items-center justify-end gap-1.5 mt-auto">
-                  {/* Toggle visibility */}
-                  <button
-                    onClick={() => handleTogglePublish(item)}
-                    className="flex items-center justify-center w-7 h-7 bg-white/20 hover:bg-white/30 text-white transition-colors"
-                    style={{ borderRadius: 4 }}
-                    title={item.is_published ? 'Hide from feed' : 'Show in feed'}
-                  >
-                    {item.is_published
-                      ? <Eye size={13} strokeWidth={1.5} />
-                      : <EyeOff size={13} strokeWidth={1.5} />
-                    }
-                  </button>
-
-                  {/* Delete */}
-                  <button
-                    onClick={() => handleDelete(item)}
-                    disabled={deleting === item.id}
-                    className="flex items-center justify-center w-7 h-7 bg-red-500/80 hover:bg-red-500 text-white transition-colors disabled:opacity-50"
-                    style={{ borderRadius: 4 }}
-                    title="Delete"
-                  >
-                    <Trash2 size={13} strokeWidth={1.5} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Title below image */}
-              {item.title && (
-                <div className="px-2 py-1.5 border-t" style={{ borderColor: T.border }}>
-                  <p className="text-xs font-medium truncate" style={{ color: T.navyMid }}>
-                    {item.title}
-                  </p>
-                  {item.event_type && (
-                    <p className="text-xs" style={{ color: T.textLight }}>{item.event_type}</p>
+                {/* Thumbnail */}
+                <div className="aspect-square bg-gray-100 overflow-hidden">
+                  {isVideo ? (
+                    <div className="w-full h-full flex items-center justify-center relative"
+                      style={{ background: T.navy }}>
+                      <Play size={32} strokeWidth={1} className="text-white opacity-80" />
+                      <span className="absolute bottom-2 right-2 text-xs text-white/70 font-medium">
+                        Video
+                      </span>
+                    </div>
+                  ) : item.image_url ? (
+                    <img
+                      src={item.image_url}
+                      alt={item.title || 'Portfolio'}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Image size={24} strokeWidth={1} style={{ color: T.textLight }} />
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
-          ))}
+
+                {/* Hover overlay */}
+                <div
+                  className="absolute inset-0 flex flex-col justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ background: 'rgba(15,23,42,0.6)' }}
+                >
+                  {!item.is_published && (
+                    <div>
+                      <span
+                        className="text-xs font-medium px-2 py-0.5 text-white"
+                        style={{ background: 'rgba(0,0,0,0.5)', borderRadius: 3 }}
+                      >
+                        Hidden
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-end gap-1.5 mt-auto">
+                    <button
+                      onClick={() => handleTogglePublish(item)}
+                      className="flex items-center justify-center w-7 h-7 bg-white/20 hover:bg-white/30 text-white transition-colors"
+                      style={{ borderRadius: 4 }}
+                      title={item.is_published ? 'Hide from feed' : 'Show in feed'}
+                    >
+                      {item.is_published
+                        ? <Eye size={13} strokeWidth={1.5} />
+                        : <EyeOff size={13} strokeWidth={1.5} />
+                      }
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(item)}
+                      disabled={deleting === item.id}
+                      className="flex items-center justify-center w-7 h-7 bg-red-500/80 hover:bg-red-500 text-white transition-colors disabled:opacity-50"
+                      style={{ borderRadius: 4 }}
+                      title="Delete"
+                    >
+                      <Trash2 size={13} strokeWidth={1.5} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Title below */}
+                {item.title && (
+                  <div className="px-2 py-1.5 border-t" style={{ borderColor: T.border }}>
+                    <p className="text-xs font-medium truncate" style={{ color: T.navyMid }}>
+                      {item.title}
+                    </p>
+                    {item.event_type && (
+                      <p className="text-xs" style={{ color: T.textLight }}>{item.event_type}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
