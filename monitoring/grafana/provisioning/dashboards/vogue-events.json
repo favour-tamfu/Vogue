@@ -1,0 +1,111 @@
+{
+  "title": "Vogue Events — Application Monitoring",
+  "uid": "vogue-events-dashboard",
+  "version": 1,
+  "schemaVersion": 30,
+  "refresh": "10s",
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "App Uptime",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "expr": "process_uptime_seconds",
+        "legendFormat": "Uptime (seconds)"
+      }],
+      "options": { "colorMode": "background", "graphMode": "none" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "fixed", "fixedColor": "green" }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "gauge",
+      "title": "Heap Memory Used",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "expr": "process_heap_used_bytes / 1024 / 1024",
+        "legendFormat": "Heap Used (MB)"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "MB",
+          "min": 0,
+          "max": 512,
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "yellow", "value": 256 },
+              { "color": "red", "value": 400 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Memory Usage Over Time",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "process_heap_used_bytes / 1024 / 1024",
+          "legendFormat": "Heap Used (MB)"
+        },
+        {
+          "expr": "process_rss_bytes / 1024 / 1024",
+          "legendFormat": "RSS Memory (MB)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "MB" }
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "CPU Load Average",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "system_load_average_1m",
+          "legendFormat": "1 min avg"
+        },
+        {
+          "expr": "system_load_average_5m",
+          "legendFormat": "5 min avg"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Free System Memory",
+      "gridPos": { "x": 0, "y": 20, "w": 6, "h": 4 },
+      "targets": [{
+        "expr": "system_free_memory_bytes / 1024 / 1024 / 1024",
+        "legendFormat": "Free Memory (GB)"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "GB" }
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Total System Memory",
+      "gridPos": { "x": 6, "y": 20, "w": 6, "h": 4 },
+      "targets": [{
+        "expr": "system_total_memory_bytes / 1024 / 1024 / 1024",
+        "legendFormat": "Total Memory (GB)"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "GB" }
+      }
+    }
+  ]
+}
