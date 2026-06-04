@@ -19,6 +19,7 @@ const eslintConfig = defineConfig([
       "react/no-unescaped-entities": "off",
       "no-unused-expressions": "off",
       "react-hooks/exhaustive-deps": "off",
+      "react-hooks/set-state-in-effect": "off",
     },
   },
 ]);
