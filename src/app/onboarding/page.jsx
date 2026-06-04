@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const CATEGORIES = [
@@ -29,7 +28,6 @@ const variants = {
 
 // ── Main component (not exported directly) ──
 function OnboardingPage() {
-  const router = useRouter()
   const supabase = createClient()
   const searchParams = useSearchParams()
 
@@ -81,7 +79,7 @@ function OnboardingPage() {
       }
     }
     loadProfile()
-  }, [])
+  }, [supabase, searchParams])
 
   const next = () => {
     setDirection(1)
@@ -364,7 +362,7 @@ function StepLocation({ profile, update, onNext, onBack }) {
           type="text"
           value={query}
           onChange={e => search(e.target.value)}
-          onFocus={() => results.length > 0 && setShowDropdown(true)}
+          onFocus={() => { if (results.length > 0) setShowDropdown(true) }}
           placeholder="e.g. Lagos, Nairobi, London..."
           className="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-brand-500 transition-colors"
           autoComplete="off"

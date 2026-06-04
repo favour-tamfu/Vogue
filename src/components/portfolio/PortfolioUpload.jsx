@@ -27,6 +27,8 @@ const EVENT_TYPES = [
   'Private Dinner', 'Funeral', 'Other'
 ]
 
+const TODAY = new Date().toISOString().split('T')[0]
+
 export default function PortfolioUpload({ profile, existingPortfolio, categories }) {
   const router   = useRouter()
   const supabase = createClient()
@@ -355,7 +357,7 @@ export default function PortfolioUpload({ profile, existingPortfolio, categories
                   type="date"
                   value={form.event_date}
                   onChange={e => update('event_date', e.target.value)}
-                  max={new Date().toISOString().split('T')[0]}
+                  max={TODAY}
                   className="w-full px-3 py-2 text-sm border outline-none"
                   style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
                   onFocus={e => e.target.style.borderColor = T.navy}
