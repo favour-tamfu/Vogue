@@ -337,7 +337,7 @@ export default function NewJobPage() {
                     autoComplete="off"
                     className="w-full px-3 py-2.5 text-sm border outline-none"
                     style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                    onFocus={e => { e.target.style.borderColor = T.navy; locationResults.length > 0 && setShowLocationDrop(true) }}
+                    onFocus={e => { e.target.style.borderColor = T.navy; if (locationResults.length > 0) setShowLocationDrop(true) }}
                     onBlur={e => e.target.style.borderColor = T.border}
                   />
 
