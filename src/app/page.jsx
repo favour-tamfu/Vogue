@@ -6,7 +6,8 @@ import {
 import PublicNav from '@/components/layout/PublicNav'
 import Footer from '@/components/layout/Footer'
 import MotifLayer from '@/components/motifs/MotifLayer'
-import { Omumu, Eke, Odu, Osisi, Akwukwo, Nnyo, Ntupo } from '@/components/motifs'
+import MotifCycle from '@/components/motifs/MotifCycle'
+import { Omumu, Eke, Odu, Osisi, Akwukwo, Nnyo, Nku, Ugo, Ntupo } from '@/components/motifs'
 import { PRODUCT_NAME, PRODUCT_DESCRIPTION } from '@/lib/brand'
 
 const STEPS = [
@@ -44,25 +45,57 @@ export default function LandingPage() {
       <PublicNav />
 
       {/* ── HERO ── */}
-      <section className="relative overflow-hidden pt-32 pb-20 px-4 bg-ink">
+      <section className="relative overflow-hidden pt-24 pb-14 sm:pt-32 sm:pb-20 px-4 bg-ink">
         <MotifLayer>
-          {/* Ọmụmụ — growth, the rising tendril. Left anchor. */}
-          <Omumu
-            size={230}
-            className="motif-float absolute -left-8 bottom-0 text-sand opacity-40 hidden sm:block"
-            style={{ '--fd': '19s' }}
+          {/* Phone — the hero is centred text on a narrow column, so ornament
+              hugs the corners and stays well clear of the headline. */}
+          <MotifCycle
+            motifs={[Omumu, Osisi, Ugo]}
+            size={190}
+            cycle="63s"
+            float="motif-float"
+            floatDuration="19s"
+            className="absolute -left-14 -bottom-8 text-sand opacity-30 sm:hidden"
           />
-          {/* Eke — python, the double sweep. Right anchor. */}
-          <Eke
-            size={280}
-            className="motif-float2 absolute -right-12 -bottom-8 text-sand opacity-35 hidden sm:block"
-            style={{ '--fd': '25s', '--delay': '1.2s' }}
+          <MotifCycle
+            motifs={[Odu, Nku]}
+            size={130}
+            cycle="51s"
+            float="motif-float2"
+            floatDuration="24s"
+            delay="1.2s"
+            animateFirst={false}
+            className="absolute -right-10 -top-4 text-sand opacity-20 sm:hidden"
           />
-          {/* Ọdụ — tusk curve. Small top accent. */}
-          <Odu
+
+          {/* Tablet and up — Ọmụmụ and Eke anchor the two sides, each handing
+              over to a different motif on a long cycle. */}
+          <MotifCycle
+            motifs={[Omumu, Akwukwo, Osisi]}
+            size={250}
+            cycle="66s"
+            float="motif-float"
+            floatDuration="19s"
+            className="absolute -left-8 bottom-0 text-sand opacity-40 hidden sm:inline-block"
+          />
+          <MotifCycle
+            motifs={[Eke, Nnyo, Ugo]}
+            size={290}
+            cycle="71s"
+            float="motif-float2"
+            floatDuration="25s"
+            delay="1.2s"
+            className="absolute -right-12 -bottom-8 text-sand opacity-35 hidden sm:inline-block"
+          />
+          <MotifCycle
+            motifs={[Odu, Nku]}
             size={150}
-            className="motif-float absolute right-1/4 -top-10 text-sand opacity-20 hidden lg:block"
-            style={{ '--fd': '22s', '--delay': '2.4s' }}
+            cycle="54s"
+            float="motif-float"
+            floatDuration="22s"
+            delay="2.4s"
+            animateFirst={false}
+            className="absolute right-1/4 -top-10 text-sand opacity-20 hidden lg:inline-block"
           />
         </MotifLayer>
 
