@@ -2,24 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
   Bell, User, Settings, LogOut, ChevronDown,
-  Menu, X, Briefcase, MessageSquare, CheckCheck,
-  Zap, Star, Send, DollarSign
+  Briefcase, MessageSquare, CheckCheck,
+  Zap, Star, DollarSign
 } from 'lucide-react'
-
-const T = {
-  navy:       '#0F172A',
-  navyMid:    '#1E293B',
-  coral:      '#E8523A',
-  coralLight: '#FEF0ED',
-  border:     '#E2E8F0',
-  bg:         '#F8FAFC',
-  textMuted:  '#64748B',
-  textLight:  '#94A3B8',
-}
+import Logo from '@/components/brand/Logo'
 
 function timeAgo(dateStr) {
   const diff  = Date.now() - new Date(dateStr).getTime()
@@ -31,23 +20,22 @@ function timeAgo(dateStr) {
   return `${days}d ago`
 }
 
+// Types must match exactly what the API inserts (CLAUDE.md §7.2).
 const NOTIF_CONFIG = {
-  new_bid:        { icon: DollarSign, color: '#D97706', bg: '#FFFBEB' },
-  bid_accepted:   { icon: CheckCheck, color: '#16A34A', bg: '#F0FDF4' },
-  hire_confirmed: { icon: Briefcase,  color: '#2563EB', bg: '#EFF6FF' },
-  new_message:    { icon: MessageSquare, color: T.coral, bg: T.coralLight },
-  new_review:     { icon: Star,       color: '#D97706', bg: '#FFFBEB' },
+  new_bid:        { icon: DollarSign,    className: 'bg-ochre-soft text-ochre-text'          },
+  bid_accepted:   { icon: CheckCheck,    className: 'bg-verified-bg text-verified'           },
+  hire_confirmed: { icon: Briefcase,     className: 'bg-verified-bg text-verified'           },
+  new_message:    { icon: MessageSquare, className: 'bg-terracotta-soft text-terracotta'     },
+  new_review:     { icon: Star,          className: 'bg-ochre-soft text-ochre-text'          },
 }
 
 export default function Navbar({ profile }) {
-  const router   = useRouter()
   const supabase = createClient()
 
   const [menuOpen, setMenuOpen]         = useState(false)
   const [bellOpen, setBellOpen]         = useState(false)
   const [notifications, setNotifications] = useState([])
   const [unread, setUnread]             = useState(0)
-  const [markingAll, setMarkingAll]     = useState(false)
 
   const bellRef   = useRef(null)
   const avatarRef = useRef(null)
@@ -126,27 +114,18 @@ export default function Navbar({ profile }) {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 border-b"
+      className="fixed top-0 left-0 right-0 z-50 border-b border-line"
       style={{
-        background:   'rgba(255,255,255,0.9)',
+        background:     'rgba(255,255,255,0.9)',
         backdropFilter: 'blur(12px)',
-        borderColor:  T.border,
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 gap-4">
 
           {/* Logo */}
-          <Link href={profile ? '/dashboard' : '/'} className="flex items-center gap-2 flex-shrink-0">
-            <div
-              className="w-7 h-7 flex items-center justify-center text-white font-bold text-xs"
-              style={{ background: T.coral, borderRadius: 4 }}
-            >
-              V
-            </div>
-            <span className="hidden sm:block font-bold text-sm tracking-widest" style={{ color: T.navy }}>
-              VOGUE
-            </span>
+          <Link href={profile ? '/dashboard' : '/'} className="flex items-center flex-shrink-0">
+            <Logo size={24} />
           </Link>
 
           {/* Desktop nav */}
@@ -161,8 +140,7 @@ export default function Navbar({ profile }) {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="px-3 py-1.5 text-sm font-medium transition-colors hover:bg-slate-100 rounded"
-                  style={{ color: T.textMuted }}
+                  className="px-3 py-1.5 text-sm font-medium transition-colors rounded-xs text-ink-2 hover:bg-cream-2"
                 >
                   {link.label}
                 </Link>
@@ -178,21 +156,15 @@ export default function Navbar({ profile }) {
                 <div className="relative" ref={bellRef}>
                   <button
                     onClick={handleBellOpen}
-                    className="relative flex items-center justify-center w-9 h-9 border transition-colors hover:bg-slate-50"
-                    style={{ borderColor: T.border, borderRadius: 4 }}
+                    className="relative flex items-center justify-center w-9 h-9 border border-line rounded-xs
+                               transition-colors hover:bg-cream"
                   >
-                    <Bell size={16} strokeWidth={1.5} style={{ color: T.textMuted }} />
+                    <Bell size={16} strokeWidth={1.5} className="text-ink-2" />
                     {unread > 0 && (
                       <span
-                        className="absolute -top-1 -right-1 flex items-center justify-center text-white font-bold"
-                        style={{
-                          background:  T.coral,
-                          borderRadius: '50%',
-                          minWidth:    16,
-                          height:      16,
-                          fontSize:    9,
-                          padding:     '0 3px',
-                        }}
+                        className="absolute -top-1 -right-1 flex items-center justify-center text-white
+                                   font-bold rounded-full bg-terracotta"
+                        style={{ minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}
                       >
                         {unread > 9 ? '9+' : unread}
                       </span>
@@ -201,20 +173,16 @@ export default function Navbar({ profile }) {
 
                   {/* Bell dropdown */}
                   {bellOpen && (
-                    <div
-                      className="absolute right-0 mt-2 w-80 bg-white border shadow-lg overflow-hidden z-50"
-                      style={{ borderColor: T.border, borderRadius: 4 }}
-                    >
+                    <div className="absolute right-0 mt-2 w-80 bg-surface border border-line rounded-md
+                                    shadow-lg overflow-hidden z-50">
                       {/* Header */}
-                      <div className="flex items-center justify-between px-4 py-3 border-b"
-                        style={{ borderColor: T.border }}>
-                        <span className="text-sm font-semibold" style={{ color: T.navy }}>
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-line">
+                        <span className="text-sm font-semibold text-ink">
                           Notifications
                         </span>
                         <Link
                           href="/notifications"
-                          className="text-xs font-medium hover:opacity-70"
-                          style={{ color: T.coral }}
+                          className="text-xs font-medium text-terracotta hover:text-terracotta-deep"
                           onClick={() => setBellOpen(false)}
                         >
                           View all
@@ -222,15 +190,14 @@ export default function Navbar({ profile }) {
                       </div>
 
                       {/* Notification list */}
-                      <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+                      <div className="max-h-90 overflow-y-auto">
                         {notifications.length === 0 ? (
                           <div className="px-4 py-8 text-center">
-                            <Bell size={24} strokeWidth={1}
-                              style={{ color: T.textLight, margin: '0 auto 8px' }} />
-                            <p className="text-sm" style={{ color: T.textMuted }}>
+                            <Bell size={24} strokeWidth={1} className="text-ink-3 mx-auto mb-2" />
+                            <p className="text-sm text-ink-2">
                               No notifications yet
                             </p>
-                            <p className="text-xs mt-1" style={{ color: T.textLight }}>
+                            <p className="text-xs mt-1 text-ink-3">
                               Activity on your jobs and bids will appear here
                             </p>
                           </div>
@@ -243,41 +210,35 @@ export default function Navbar({ profile }) {
                                 key={notif.id}
                                 href={notif.link || '/dashboard'}
                                 onClick={() => setBellOpen(false)}
-                                className="flex items-start gap-3 px-4 py-3 border-b last:border-0 transition-colors hover:bg-slate-50"
-                                style={{
-                                  borderColor: T.border,
-                                  background:  notif.is_read ? '#fff' : '#FAFAFA',
-                                }}
+                                className={`flex items-start gap-3 px-4 py-3 border-b border-line last:border-0
+                                            transition-colors hover:bg-cream ${
+                                  notif.is_read ? 'bg-surface' : 'bg-cream'
+                                }`}
                               >
                                 {/* Icon */}
-                                <div
-                                  className="flex items-center justify-center flex-shrink-0 w-8 h-8"
-                                  style={{ background: cfg.bg, borderRadius: 4 }}
-                                >
-                                  <Icon size={14} strokeWidth={1.5} style={{ color: cfg.color }} />
+                                <div className={`flex items-center justify-center flex-shrink-0 w-8 h-8
+                                                 rounded-xs ${cfg.className}`}>
+                                  <Icon size={14} strokeWidth={1.5} />
                                 </div>
 
                                 {/* Content */}
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold" style={{ color: T.navy }}>
+                                  <p className="text-xs font-semibold text-ink">
                                     {notif.title}
                                   </p>
                                   {notif.body && (
-                                    <p className="text-xs mt-0.5 line-clamp-2" style={{ color: T.textMuted }}>
+                                    <p className="text-xs mt-0.5 line-clamp-2 text-ink-2">
                                       {notif.body}
                                     </p>
                                   )}
-                                  <p className="text-xs mt-1" style={{ color: T.textLight }}>
+                                  <p className="text-xs mt-1 text-ink-3">
                                     {timeAgo(notif.created_at)}
                                   </p>
                                 </div>
 
                                 {/* Unread dot */}
                                 {!notif.is_read && (
-                                  <div
-                                    className="flex-shrink-0 w-2 h-2 rounded-full mt-1"
-                                    style={{ background: T.coral }}
-                                  />
+                                  <div className="flex-shrink-0 w-2 h-2 rounded-full mt-1 bg-terracotta" />
                                 )}
                               </Link>
                             )
@@ -292,36 +253,31 @@ export default function Navbar({ profile }) {
                 <div className="relative" ref={avatarRef}>
                   <button
                     onClick={() => setMenuOpen(!menuOpen)}
-                    className="flex items-center gap-2 pl-1.5 pr-2 py-1 border transition-colors hover:bg-slate-50"
-                    style={{ borderColor: T.border, borderRadius: 4 }}
+                    className="flex items-center gap-2 pl-1.5 pr-2 py-1 border border-line rounded-xs
+                               transition-colors hover:bg-cream"
                   >
-                    <div
-                      className="w-6 h-6 flex items-center justify-center text-white text-xs font-bold overflow-hidden"
-                      style={{ background: T.navy, borderRadius: 3 }}
-                    >
+                    <div className="w-6 h-6 flex items-center justify-center text-white text-xs font-bold
+                                    overflow-hidden bg-ink rounded-[3px]">
                       {profile.avatar_url
                         ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
                         : profile.full_name?.charAt(0) || '?'
                       }
                     </div>
-                    <span className="hidden sm:block text-xs font-medium max-w-24 truncate"
-                      style={{ color: T.navyMid }}>
+                    <span className="hidden sm:block text-xs font-medium max-w-24 truncate text-ink-2">
                       {profile.full_name?.split(' ')[0]}
                     </span>
-                    <ChevronDown size={12} strokeWidth={1.5} style={{ color: T.textLight }} />
+                    <ChevronDown size={12} strokeWidth={1.5} className="text-ink-3" />
                   </button>
 
                   {menuOpen && (
-                    <div
-                      className="absolute right-0 mt-2 w-52 bg-white border shadow-lg overflow-hidden z-50"
-                      style={{ borderColor: T.border, borderRadius: 4 }}
-                    >
+                    <div className="absolute right-0 mt-2 w-52 bg-surface border border-line rounded-md
+                                    shadow-lg overflow-hidden z-50">
                       {/* User info */}
-                      <div className="px-4 py-3 border-b" style={{ borderColor: T.border }}>
-                        <p className="text-sm font-semibold" style={{ color: T.navy }}>
+                      <div className="px-4 py-3 border-b border-line">
+                        <p className="text-sm font-semibold text-ink">
                           {profile.full_name}
                         </p>
-                        <p className="text-xs mt-0.5 capitalize" style={{ color: T.textLight }}>
+                        <p className="text-xs mt-0.5 capitalize text-ink-3">
                           {profile.role} account
                         </p>
                       </div>
@@ -337,21 +293,21 @@ export default function Navbar({ profile }) {
                             key={item.label}
                             href={item.href}
                             onClick={() => setMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 text-sm transition-colors hover:bg-slate-50"
-                            style={{ borderRadius: 3, color: T.textMuted }}
+                            className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-[3px]
+                                       text-ink-2 transition-colors hover:bg-cream"
                           >
-                            <item.icon size={13} strokeWidth={1.5} style={{ color: T.textLight }} />
+                            <item.icon size={13} strokeWidth={1.5} className="text-ink-3" />
                             {item.label}
                           </Link>
                         ))}
                       </div>
 
                       {/* Sign out */}
-                      <div className="p-1 border-t" style={{ borderColor: T.border }}>
+                      <div className="p-1 border-t border-line">
                         <button
                           onClick={handleSignOut}
-                          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm transition-colors hover:bg-red-50"
-                          style={{ borderRadius: 3, color: '#DC2626' }}
+                          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm rounded-[3px]
+                                     text-danger transition-colors hover:bg-danger-bg"
                         >
                           <LogOut size={13} strokeWidth={1.5} />
                           Sign Out
@@ -364,13 +320,13 @@ export default function Navbar({ profile }) {
             ) : (
               <>
                 <Link href="/login"
-                  className="text-sm font-medium px-4 py-1.5 border transition-colors hover:bg-slate-50"
-                  style={{ borderColor: T.border, borderRadius: 4, color: T.textMuted }}>
+                  className="text-sm font-medium px-4 py-1.5 border border-line rounded-sm text-ink-2
+                             transition-colors hover:bg-cream">
                   Log in
                 </Link>
                 <Link href="/signup"
-                  className="text-sm font-semibold px-4 py-1.5 text-white transition-opacity hover:opacity-90"
-                  style={{ background: T.coral, borderRadius: 4 }}>
+                  className="text-sm font-semibold px-4 py-1.5 text-white rounded-sm bg-terracotta
+                             transition-colors hover:bg-terracotta-deep">
                   Sign Up
                 </Link>
               </>

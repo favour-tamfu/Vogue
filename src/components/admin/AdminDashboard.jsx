@@ -4,20 +4,10 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
-  Shield, CheckCircle, XCircle, Clock,
+  CheckCircle, XCircle, Clock,
   ExternalLink, ChevronDown, ChevronUp
 } from 'lucide-react'
-
-const T = {
-  navy:       '#0F172A',
-  navyMid:    '#1E293B',
-  coral:      '#E8523A',
-  coralLight: '#FEF0ED',
-  border:     '#E2E8F0',
-  bg:         '#F8FAFC',
-  textMuted:  '#64748B',
-  textLight:  '#94A3B8',
-}
+import Logo from '@/components/brand/Logo'
 
 // Move ALL formatting logic outside JSX to avoid parser issues
 function formatDate(dateStr) {
@@ -30,9 +20,9 @@ function formatDate(dateStr) {
 
 function getStatusConfig(status) {
   const configs = {
-    pending:  { bg: '#FFFBEB', border: '#FDE68A', color: '#D97706', label: 'Pending'  },
-    approved: { bg: '#F0FDF4', border: '#86EFAC', color: '#16A34A', label: 'Approved' },
-    rejected: { bg: '#FFF5F5', border: '#FECACA', color: '#DC2626', label: 'Rejected' },
+    pending:  { className: 'bg-ochre-soft text-ochre-text border-ochre-soft', label: 'Pending'  },
+    approved: { className: 'bg-verified-bg text-verified border-verified-bg', label: 'Approved' },
+    rejected: { className: 'bg-danger-bg text-danger border-danger-bg',       label: 'Rejected' },
   }
   return configs[status] || configs.pending
 }
@@ -49,6 +39,7 @@ export default function AdminDashboard({ applications, adminName }) {
   const [expanded, setExpanded] = useState(null)
   const [loading, setLoading]   = useState(null)
   const [notes, setNotes]       = useState({})
+  const [actionError, setActionError] = useState(null)
 
   const filtered = applications.filter(app => {
     if (filter === 'all') return true
@@ -64,6 +55,7 @@ export default function AdminDashboard({ applications, adminName }) {
 
   const handleDecision = async (appId, providerId, decision) => {
     setLoading(appId + '-' + decision)
+    setActionError(null)
     try {
       const res = await fetch('/api/admin/verify', {
         method:  'POST',
@@ -79,35 +71,30 @@ export default function AdminDashboard({ applications, adminName }) {
         router.refresh()
       } else {
         const data = await res.json()
-        alert(data.error || 'Something went wrong')
+        setActionError(data.error || 'Something went wrong')
       }
-    } catch (e) {
-      alert('Network error')
+    } catch {
+      setActionError('Network error — please try again')
     }
     setLoading(null)
   }
 
   return (
-    <div className="min-h-screen" style={{ background: T.bg }}>
+    <div className="min-h-screen bg-cream">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
 
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div
-              className="w-9 h-9 flex items-center justify-center text-white"
-              style={{ background: T.navy, borderRadius: 4 }}
-            >
-              <Shield size={16} strokeWidth={1.5} />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold" style={{ color: T.navy }}>Admin Panel</h1>
-              <p className="text-xs" style={{ color: T.textLight }}>Welcome, {adminName}</p>
+            <Logo size={28} />
+            <div className="pl-3 border-l border-line">
+              <h1 className="t-h2 text-ink">Admin Panel</h1>
+              <p className="text-xs text-ink-3">Welcome, {adminName}</p>
             </div>
           </div>
           <a
             href="/dashboard"
-            className="text-xs font-medium px-3 py-1.5 border transition-colors hover:bg-white"
-            style={{ borderColor: T.border, borderRadius: 4, color: T.textMuted }}
+            className="text-xs font-medium px-3 py-1.5 border border-line rounded-sm text-ink-2
+                       transition-colors hover:bg-surface"
           >
             Back to Dashboard
           </a>
@@ -118,31 +105,34 @@ export default function AdminDashboard({ applications, adminName }) {
             <button
               key={key}
               onClick={() => setFilter(key)}
-              className="border p-4 text-center transition-all"
-              style={{
-                borderColor:  filter === key ? T.coral : T.border,
-                background:   filter === key ? T.coralLight : '#fff',
-                borderRadius: 4,
-              }}
+              className={`border rounded-xs p-4 text-center transition-all ${
+                filter === key
+                  ? 'border-terracotta bg-terracotta-soft'
+                  : 'border-line bg-surface'
+              }`}
             >
-              <div className="text-2xl font-bold"
-                style={{ color: filter === key ? T.coral : T.navy }}>
+              <div className={`text-2xl t-money ${
+                filter === key ? 'text-terracotta' : 'text-ink'
+              }`}>
                 {count}
               </div>
-              <div className="text-xs capitalize mt-0.5" style={{ color: T.textLight }}>
+              <div className="text-xs capitalize mt-0.5 text-ink-3">
                 {key}
               </div>
             </button>
           ))}
         </div>
 
+        {actionError && (
+          <div className="mb-4 flex items-center gap-2 p-3 border border-line rounded-xs text-xs bg-danger-bg text-danger">
+            <XCircle size={13} strokeWidth={1.5} /> {actionError}
+          </div>
+        )}
+
         <div className="space-y-3">
           {filtered.length === 0 && (
-            <div
-              className="bg-white border py-16 text-center"
-              style={{ borderColor: T.border, borderRadius: 4 }}
-            >
-              <p className="text-sm" style={{ color: T.textMuted }}>
+            <div className="bg-surface border border-line rounded-md py-16 text-center">
+              <p className="text-sm text-ink-2">
                 No {filter} applications
               </p>
             </div>
@@ -158,64 +148,50 @@ export default function AdminDashboard({ applications, adminName }) {
             return (
               <div
                 key={app.id}
-                className="bg-white border overflow-hidden"
-                style={{ borderColor: T.border, borderRadius: 4 }}
+                className="bg-surface border border-line rounded-md overflow-hidden"
               >
                 <div
-                  className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-slate-50 transition-colors"
+                  className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-cream transition-colors"
                   onClick={() => setExpanded(isExpanded ? null : app.id)}
                 >
-                  <div
-                    className="w-10 h-10 flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-                    style={{ background: T.navy, borderRadius: 4 }}
-                  >
+                  <div className="w-10 h-10 flex items-center justify-center text-white font-bold text-sm
+                                  flex-shrink-0 bg-ink rounded-xs">
                     {app.provider?.full_name?.charAt(0) || '?'}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold" style={{ color: T.navy }}>
+                      <span className="text-sm font-semibold text-ink">
                         {app.provider?.full_name}
                       </span>
-                      <span
-                        className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 border"
-                        style={{
-                          background:   cfg.bg,
-                          borderColor:  cfg.border,
-                          color:        cfg.color,
-                          borderRadius: 4,
-                        }}
-                      >
+                      <span className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5
+                                        border rounded-xs ${cfg.className}`}>
                         <StatusIcon status={app.status} size={10} />
                         {cfg.label}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                      <span className="text-xs" style={{ color: T.textLight }}>
+                      <span className="text-xs text-ink-3">
                         {app.provider?.role} · {app.provider?.location}
                       </span>
-                      <span className="text-xs" style={{ color: T.textLight }}>
+                      <span className="text-xs text-ink-3">
                         Applied {appliedDate}
                       </span>
                     </div>
                   </div>
 
                   {isExpanded
-                    ? <ChevronUp size={16} strokeWidth={1.5} style={{ color: T.textLight }} />
-                    : <ChevronDown size={16} strokeWidth={1.5} style={{ color: T.textLight }} />
+                    ? <ChevronUp size={16} strokeWidth={1.5} className="text-ink-3" />
+                    : <ChevronDown size={16} strokeWidth={1.5} className="text-ink-3" />
                   }
                 </div>
 
                 {isExpanded && (
-                  <div
-                    className="border-t px-5 py-5 space-y-4"
-                    style={{ borderColor: T.border, background: T.bg }}
-                  >
+                  <div className="border-t border-line px-5 py-5 space-y-4 bg-cream">
                     {app.provider?.bio && (
                       <div>
-                        <p className="text-xs font-semibold tracking-widest uppercase mb-1"
-                          style={{ color: T.textLight }}>Bio</p>
-                        <p className="text-sm" style={{ color: T.textMuted }}>
+                        <p className="t-micro mb-1 text-ink-3">Bio</p>
+                        <p className="text-sm text-ink-2">
                           {app.provider.bio}
                         </p>
                       </div>
@@ -223,25 +199,22 @@ export default function AdminDashboard({ applications, adminName }) {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-xs font-semibold tracking-widest uppercase mb-2"
-                          style={{ color: T.textLight }}>Government ID</p>
+                        <p className="t-micro mb-2 text-ink-3">Government ID</p>
                         {app.government_id_url
                           ? <IDViewer path={app.government_id_url} />
-                          : <p className="text-xs" style={{ color: T.textLight }}>Not provided</p>
+                          : <p className="text-xs text-ink-3">Not provided</p>
                         }
                       </div>
 
                       <div>
-                        <p className="text-xs font-semibold tracking-widest uppercase mb-2"
-                          style={{ color: T.textLight }}>Online Presence</p>
+                        <p className="t-micro mb-2 text-ink-3">Online Presence</p>
                         <div className="space-y-2">
                           {app.website_url && (
                             <a
                               href={app.website_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-xs transition-opacity hover:opacity-70"
-                              style={{ color: T.coral }}
+                              className="flex items-center gap-2 text-xs text-terracotta hover:text-terracotta-deep"
                             >
                               <ExternalLink size={12} strokeWidth={1.5} />
                               {app.website_url}
@@ -252,15 +225,14 @@ export default function AdminDashboard({ applications, adminName }) {
                               href={app.social_media_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-xs transition-opacity hover:opacity-70"
-                              style={{ color: T.coral }}
+                              className="flex items-center gap-2 text-xs text-terracotta hover:text-terracotta-deep"
                             >
                               <ExternalLink size={12} strokeWidth={1.5} />
                               {app.social_media_url}
                             </a>
                           )}
                           {!app.website_url && !app.social_media_url && (
-                            <p className="text-xs" style={{ color: T.textLight }}>
+                            <p className="text-xs text-ink-3">
                               No links provided
                             </p>
                           )}
@@ -270,61 +242,54 @@ export default function AdminDashboard({ applications, adminName }) {
 
                     {app.additional_notes && (
                       <div>
-                        <p className="text-xs font-semibold tracking-widest uppercase mb-1"
-                          style={{ color: T.textLight }}>Provider Notes</p>
-                        <p className="text-sm" style={{ color: T.textMuted }}>
+                        <p className="t-micro mb-1 text-ink-3">Provider Notes</p>
+                        <p className="text-sm text-ink-2">
                           {app.additional_notes}
                         </p>
                       </div>
                     )}
 
                     {app.status === 'pending' && (
-                      <div className="pt-4 border-t" style={{ borderColor: T.border }}>
-                        <p className="text-xs font-semibold tracking-widest uppercase mb-3"
-                          style={{ color: T.textLight }}>Admin Decision</p>
+                      <div className="pt-4 border-t border-line">
+                        <p className="t-micro mb-3 text-ink-3">Admin Decision</p>
 
                         <textarea
                           value={notes[app.id] || ''}
                           onChange={e => setNotes(prev => ({ ...prev, [app.id]: e.target.value }))}
                           placeholder="Optional note to provider (recommended if rejecting)"
                           rows={2}
-                          className="w-full px-3 py-2.5 text-sm border outline-none resize-none mb-3"
-                          style={{
-                            borderColor: T.border,
-                            borderRadius: 4,
-                            color:        T.navy,
-                            background:   '#fff',
-                          }}
+                          className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none
+                                     resize-none mb-3 bg-surface text-ink placeholder:text-ink-3
+                                     focus:border-terracotta transition-colors"
                         />
 
                         <div className="flex gap-3">
                           <button
                             onClick={() => handleDecision(app.id, app.provider_id, 'approved')}
                             disabled={loadApprove}
-                            className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                            style={{ background: '#16A34A', borderRadius: 4 }}
+                            className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white
+                                       rounded-sm bg-verified transition-opacity hover:opacity-90 disabled:opacity-50"
                           >
                             <CheckCircle size={14} strokeWidth={2} />
-                            {loadApprove ? 'Approving...' : 'Approve'}
+                            {loadApprove ? 'Approving…' : 'Approve'}
                           </button>
                           <button
                             onClick={() => handleDecision(app.id, app.provider_id, 'rejected')}
                             disabled={loadReject}
-                            className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                            style={{ background: '#DC2626', borderRadius: 4 }}
+                            className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white
+                                       rounded-sm bg-danger transition-opacity hover:opacity-90 disabled:opacity-50"
                           >
                             <XCircle size={14} strokeWidth={2} />
-                            {loadReject ? 'Rejecting...' : 'Reject'}
+                            {loadReject ? 'Rejecting…' : 'Reject'}
                           </button>
                         </div>
                       </div>
                     )}
 
                     {app.status !== 'pending' && app.admin_notes && (
-                      <div className="pt-4 border-t" style={{ borderColor: T.border }}>
-                        <p className="text-xs font-semibold tracking-widest uppercase mb-1"
-                          style={{ color: T.textLight }}>Admin Note</p>
-                        <p className="text-sm" style={{ color: T.textMuted }}>
+                      <div className="pt-4 border-t border-line">
+                        <p className="t-micro mb-1 text-ink-3">Admin Note</p>
+                        <p className="text-sm text-ink-2">
                           {app.admin_notes}
                         </p>
                       </div>
@@ -360,11 +325,11 @@ function IDViewer({ path }) {
     <button
       onClick={viewDoc}
       disabled={loading}
-      className="flex items-center gap-2 text-xs font-medium px-3 py-2 border transition-colors hover:bg-white disabled:opacity-50"
-      style={{ borderColor: T.border, borderRadius: 4, color: T.textMuted }}
+      className="flex items-center gap-2 text-xs font-medium px-3 py-2 border border-line rounded-sm
+                 text-ink-2 transition-colors hover:bg-surface disabled:opacity-50"
     >
       <ExternalLink size={12} strokeWidth={1.5} />
-      {loading ? 'Loading...' : 'View ID Document'}
+      {loading ? 'Loading…' : 'View ID Document'}
     </button>
   )
 }

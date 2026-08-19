@@ -1,0 +1,14 @@
+{
+  "name": "Avenue",
+  "short_name": "Avenue",
+  "description": "The event services marketplace",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBF3E9",
+  "theme_color": "#B4502A",
+  "icons": [
+    { "src": "/brand/avenue-favicon-7a.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

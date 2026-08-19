@@ -1,48 +1,183 @@
 @import "tailwindcss";
 
+/* ── Fonts ────────────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/fonts/Fraunces-subset.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-stretch: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0100-017F, U+0180-024F, U+1E00-1EFF, U+0300-036F, U+2000-206F, U+20A0-20CF;
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
+  src: url('/fonts/SourceSans3-subset.woff2') format('woff2-variations');
+  font-weight: 200 900;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0100-017F, U+0180-024F, U+1E00-1EFF, U+0300-036F, U+2000-206F, U+20A0-20CF;
+}
+
+/* ── Theme ────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* brand */
+  --color-terracotta:      #B4502A;
+  --color-terracotta-deep: #8E3D1F;
+  --color-terracotta-soft: #F7E4DA;
+  --color-ochre:           #D89B3C;
+  --color-ochre-soft:      #F7E6CF;
+  --color-ochre-text:      #8A5D12;
+
+  /* trust — do not reuse these anywhere else */
+  --color-verified:        #0B6E4F;
+  --color-verified-bg:     #E3F3EA;
+
+  /* surfaces */
+  --color-cream:           #FBF3E9;
+  --color-cream-2:         #F5E9DA;
+  --color-sand:            #F2D9A8;
+  --color-surface:         #FFFFFF;
+
+  /* text */
+  --color-ink:             #2B2118;
+  --color-ink-2:           #6B5E4F;
+  --color-ink-3:           #9A8B78;
+
+  /* structure */
+  --color-line:            #ECD9BF;
+
+  /* state */
+  --color-danger:          #9B3B21;
+  --color-danger-bg:       #FBE3DE;
+
+  /* radii */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* type */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-sans:    'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-
-  --color-brand-50: #fff2f1;
-  --color-brand-100: #ffe0de;
-  --color-brand-200: #ffc7c3;
-  --color-brand-300: #ffa09a;
-  --color-brand-400: #fd6b63;
-  --color-brand-500: #FD5E53;
-  --color-brand-600: #eb3528;
-  --color-brand-700: #c5251e;
-  --color-brand-800: #a3231e;
-  --color-brand-900: #87231f;
-  --color-peach-50: #fff8f2;
---color-peach-100: #ffe8d0;
---color-peach-200: #FFD3AC;
---color-peach-300: #ffbb80;
---color-peach-400: #ffa050;
---color-slate-400: #A9A9A9;
---color-slate-500: #8a8a8a;
---color-slate-600: #6b6b6b;
---color-slate-700: #4a4a4a;
---color-slate-800: #2d2d2d;
---color-slate-900: #1a1a1a;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-ui: var(--font-sans);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Type scale (§3.2.2) ──────────────────────────────────────────────── */
+/* Fraunces is never used at 15px or below — its x-height is too low. */
+
+.t-hero {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 52px);
+  font-variation-settings: 'opsz' 110, 'SOFT' 45, 'WONK' 1;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+
+.t-h1 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-variation-settings: 'opsz' 80, 'SOFT' 40, 'WONK' 1;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+.t-h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-variation-settings: 'opsz' 60, 'SOFT' 35, 'WONK' 1;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.t-h3 {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.t-body       { font-family: var(--font-ui); font-size: 15px; font-weight: 400; line-height: 1.55; }
+.t-body-sm    { font-family: var(--font-ui); font-size: 13px; font-weight: 400; line-height: 1.5; }
+.t-label      { font-family: var(--font-ui); font-size: 12px; font-weight: 600; }
+.t-micro {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Money and bid amounts — figures must align down a list. */
+.t-money {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Motif animation (§3.4) ───────────────────────────────────────────── */
+/* CSS only. Never framer-motion — motifs must not cost JS. */
+/* Every animated path must carry pathLength="1". */
+
+/* GROW — lines draw themselves on, like a vine climbing */
+.motif-draw {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1.02;      /* 1.02 not 1 — avoids a hairline gap at the join */
+  stroke-dashoffset: 1.02;
+  animation: motif-grow var(--dur, 4.4s) cubic-bezier(.22, .62, .28, 1) var(--delay, 0s) forwards;
+}
+@keyframes motif-grow { to { stroke-dashoffset: 0; } }
+
+/* BLOOM — ntupo dots pop in after their parent stroke finishes */
+.motif-dot {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: motif-bloom .62s cubic-bezier(.34, 1.4, .5, 1) var(--delay, 0s) forwards;
+}
+@keyframes motif-bloom {
+  from { opacity: 0; transform: scale(.15); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* FLOAT — perpetual drift after growth completes */
+.motif-float  { animation: motif-drift  var(--fd, 19s) ease-in-out var(--delay, 0s) infinite; }
+.motif-float2 { animation: motif-drift2 var(--fd, 23s) ease-in-out var(--delay, 0s) infinite; }
+@keyframes motif-drift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50%      { transform: translate(5px, -13px) rotate(.8deg); }
+}
+@keyframes motif-drift2 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50%      { transform: translate(-7px, -9px) rotate(-1deg); }
+}
+
+/* Agwọ — the app's loading spinner */
+.agwo-spin {
+  animation: agwo-rotate 2.4s linear infinite;
+  transform-origin: 60px 60px;
+}
+@keyframes agwo-rotate { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .motif-draw  { animation: none; stroke-dashoffset: 0; }
+  .motif-dot   { animation: none; opacity: 1; }
+  .motif-float,
+  .motif-float2 { animation: none; }
+  .agwo-spin   { animation: none; }
 }

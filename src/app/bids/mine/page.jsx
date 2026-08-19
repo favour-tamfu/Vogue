@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import MyBids from '@/components/bids/MyBids'
+import AppBackdrop from '@/components/motifs/AppBackdrop'
 
 export default async function MyBidsPage() {
   const supabase = await createClient()
@@ -34,7 +35,8 @@ export default async function MyBidsPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="min-h-screen" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen bg-cream relative">
+      <AppBackdrop section="bids" />
       <Navbar profile={profile} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
         <MyBids bids={bids || []} profile={profile} />

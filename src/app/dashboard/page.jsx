@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar'
 import HirerView from '@/components/dashboard/HirerView'
 import ProviderView from '@/components/dashboard/ProviderView'
 import BothView from '@/components/dashboard/BothView'
+import AppBackdrop from '@/components/motifs/AppBackdrop'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -180,7 +181,8 @@ export default async function DashboardPage() {
     .limit(3)
 
   return (
-    <div className="min-h-screen" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen bg-cream relative">
+      <AppBackdrop section="dashboard" />
       <Navbar profile={profile} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
         {profile.role === 'both' ? (

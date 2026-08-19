@@ -4,20 +4,32 @@ import { useState, useRef, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
+import Anyanwu from '@/components/motifs/Anyanwu'
+import Agwo from '@/components/motifs/Agwo'
+import Isi from '@/components/motifs/Isi'
+import Omumu from '@/components/motifs/Omumu'
+import Akwukwo from '@/components/motifs/Akwukwo'
+import MotifLayer from '@/components/motifs/MotifLayer'
+import {
+  Camera, Video, UtensilsCrossed, Disc3, Mic, Flower2, Sparkles, Speaker,
+  ShieldCheck, Users, ClipboardList, Truck,
+  Hand, MapPin, Target, PenLine, Check, ArrowRight, ArrowLeft,
+  PartyPopper, Building2, Tent,
+} from 'lucide-react'
 
 const CATEGORIES = [
-  { slug: 'photography',    label: 'Photography',     emoji: '📸' },
-  { slug: 'videography',    label: 'Videography',     emoji: '🎥' },
-  { slug: 'catering',       label: 'Catering',        emoji: '🍽️' },
-  { slug: 'dj-music',       label: 'DJ & Music',      emoji: '🎵' },
-  { slug: 'mc-hosting',     label: 'MC & Hosting',    emoji: '🎤' },
-  { slug: 'decor-florals',  label: 'Decor & Florals', emoji: '💐' },
-  { slug: 'hair-makeup',    label: 'Hair & Makeup',   emoji: '💄' },
-  { slug: 'sound-lighting', label: 'Sound & Lighting',emoji: '🔊' },
-  { slug: 'security',       label: 'Security',        emoji: '🛡️' },
-  { slug: 'staffing',       label: 'Staffing',        emoji: '👥' },
-  { slug: 'event-planning', label: 'Event Planning',  emoji: '📋' },
-  { slug: 'logistics',      label: 'Logistics',       emoji: '🚚' },
+  { slug: 'photography',    label: 'Photography',     icon: Camera      },
+  { slug: 'videography',    label: 'Videography',     icon: Video       },
+  { slug: 'catering',       label: 'Catering',        icon: UtensilsCrossed },
+  { slug: 'dj-music',       label: 'DJ & Music',      icon: Disc3       },
+  { slug: 'mc-hosting',     label: 'MC & Hosting',    icon: Mic         },
+  { slug: 'decor-florals',  label: 'Decor & Florals', icon: Flower2     },
+  { slug: 'hair-makeup',    label: 'Hair & Makeup',   icon: Sparkles    },
+  { slug: 'sound-lighting', label: 'Sound & Lighting',icon: Speaker     },
+  { slug: 'security',       label: 'Security',        icon: ShieldCheck },
+  { slug: 'staffing',       label: 'Staffing',        icon: Users       },
+  { slug: 'event-planning', label: 'Event Planning',  icon: ClipboardList },
+  { slug: 'logistics',      label: 'Logistics',       icon: Truck       },
 ]
 
 const variants = {
@@ -163,88 +175,47 @@ function OnboardingPage() {
   const progress = (step / (steps.length - 1)) * 100
 
   return (
-    <div
-      className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center px-4 py-12"
-      style={{ background: 'linear-gradient(135deg, #fff5f4 0%, #fff 50%, #fff8f0 100%)' }}
-    >
+    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center px-4 py-12 bg-cream">
 
-      {/* ── Floating background shapes ── */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
-
-        <motion.div
-          className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(253,94,83,0.35), rgba(253,94,83,0.05))' }}
-          animate={{ x: [0, 40, 15, -10, 0], y: [0, 20, 50, 10, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+      {/* ── Anyanwụ — the sun. Onboarding's motif (§3.3.4). ──
+          CSS-only: no animation library, so the ornament costs no JS. */}
+      <MotifLayer>
+        <Anyanwu
+          size={420}
+          className="motif-float absolute -top-32 -left-28 text-terracotta opacity-35"
+          style={{ '--fd': '21s' }}
         />
-        <motion.div
-          className="absolute -top-20 -right-40 w-[420px] h-[420px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(255,180,80,0.30), rgba(255,140,50,0.05))' }}
-          animate={{ x: [0, -35, -60, -20, 0], y: [0, 40, 15, 60, 0] }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+        <Omumu
+          animate={false}
+          size={280}
+          className="motif-float2 absolute -bottom-16 -right-16 text-terracotta opacity-30"
+          style={{ '--fd': '26s', '--delay': '1.5s' }}
         />
-        <motion.div
-          className="absolute top-1/2 -left-32 w-[320px] h-[320px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(255,180,180,0.25), rgba(253,94,83,0.04))' }}
-          animate={{ x: [0, 50, 20, 70, 0], y: [0, -30, -60, -20, 0] }}
-          transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
+        <Akwukwo
+          animate={false}
+          size={170}
+          className="motif-float absolute top-1/3 -right-8 text-terracotta opacity-20 hidden xl:block"
+          style={{ '--fd': '23s', '--delay': '2.8s' }}
         />
-        <motion.div
-          className="absolute -bottom-40 -right-20 w-[460px] h-[460px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(235,90,60,0.28), rgba(253,94,83,0.04))' }}
-          animate={{ x: [0, -40, -70, -30, 0], y: [0, -40, -20, -70, 0] }}
-          transition={{ duration: 28, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        />
-        <motion.div
-          className="absolute -bottom-20 -left-20 w-[280px] h-[280px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(255,210,80,0.22), rgba(255,180,50,0.03))' }}
-          animate={{ x: [0, 30, 60, 20, 0], y: [0, -50, -20, -60, 0] }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-        />
-        <motion.div
-          className="absolute top-1/3 -right-20 w-[200px] h-[200px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(255,150,140,0.20), rgba(253,94,83,0.03))' }}
-          animate={{ x: [0, -25, -50, -15, 0], y: [0, 30, 60, 25, 0] }}
-          transition={{ duration: 23, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
-        />
-
-        {[
-          { top: '18%', left: '12%', size: 'w-3 h-3', color: 'rgba(253,94,83,0.4)',   duration: 6, delay: 0   },
-          { top: '65%', left: '82%', size: 'w-4 h-4', color: 'rgba(255,180,80,0.4)',  duration: 8, delay: 1   },
-          { top: '38%', left: '88%', size: 'w-2 h-2', color: 'rgba(253,94,83,0.35)',  duration: 5, delay: 3   },
-          { top: '78%', left: '18%', size: 'w-3 h-3', color: 'rgba(255,140,80,0.4)',  duration: 7, delay: 2   },
-          { top: '12%', left: '65%', size: 'w-2 h-2', color: 'rgba(235,90,60,0.35)',  duration: 9, delay: 4   },
-          { top: '50%', left: '5%',  size: 'w-2 h-2', color: 'rgba(253,94,83,0.30)',  duration: 6, delay: 1.5 },
-          { top: '85%', left: '55%', size: 'w-3 h-3', color: 'rgba(255,180,80,0.35)', duration: 7, delay: 2.5 },
-        ].map((dot, i) => (
-          <motion.div
-            key={i}
-            className={`absolute ${dot.size} rounded-full`}
-            style={{ top: dot.top, left: dot.left, background: dot.color }}
-            animate={{ y: [0, -15, 5, -10, 0], x: [0, 8, -5, 10, 0], opacity: [0.4, 0.7, 0.3, 0.6, 0.4] }}
-            transition={{ duration: dot.duration, repeat: Infinity, ease: 'easeInOut', delay: dot.delay }}
-          />
-        ))}
-
-      </div>
+      </MotifLayer>
 
       {/* ── Progress bar ── */}
       {error && (
         <div
-          className="w-full max-w-lg mb-6 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"
+          className="w-full max-w-lg mb-6 p-3 bg-danger-bg border border-line text-danger rounded-xs text-sm"
           role="alert"
         >
           {error}
         </div>
       )}
       <div className="w-full max-w-lg mb-8" style={{ position: 'relative', zIndex: 1 }}>
-        <div className="flex justify-between text-xs text-gray-400 mb-2">
+        <div className="flex justify-between text-xs text-ink-3 mb-2">
           <span>Setting up your profile</span>
           <span>{step + 1} of {steps.length}</span>
         </div>
-        <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-line rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-brand-500 rounded-full"
+            className="h-full bg-terracotta rounded-full"
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.4 }}
           />
@@ -278,7 +249,7 @@ function OnboardingPage() {
 function StepName({ profile, update, onNext }) {
   return (
     <Card>
-      <Emoji>👋</Emoji>
+      <StepIcon icon={Hand} />
       <Title>What should we call you?</Title>
       <Subtitle>This is how you'll appear to others on the platform</Subtitle>
 
@@ -287,11 +258,11 @@ function StepName({ profile, update, onNext }) {
         value={profile.full_name}
         onChange={e => update('full_name', e.target.value)}
         placeholder="Your full name"
-        className="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-brand-500 transition-colors mt-6"
+        className="w-full px-4 py-3 text-lg border-2 border-line rounded-xs text-ink focus:outline-none focus:border-terracotta transition-colors mt-6"
       />
 
-      <div className="mt-4 p-3 bg-brand-50 rounded-xl">
-        <span className="text-brand-500 text-sm font-medium">
+      <div className="mt-4 p-3 bg-terracotta-soft rounded-xs">
+        <span className="text-terracotta text-sm font-medium">
           Joining as: {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
         </span>
       </div>
@@ -353,7 +324,7 @@ function StepLocation({ profile, update, onNext, onBack }) {
 
   return (
     <Card>
-      <Emoji>📍</Emoji>
+      <StepIcon icon={MapPin} />
       <Title>Where are you based?</Title>
       <Subtitle>Start typing your city — we'll find it for you</Subtitle>
 
@@ -364,17 +335,13 @@ function StepLocation({ profile, update, onNext, onBack }) {
           onChange={e => search(e.target.value)}
           onFocus={() => { if (results.length > 0) setShowDropdown(true) }}
           placeholder="e.g. Lagos, Nairobi, London..."
-          className="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-brand-500 transition-colors"
+          className="w-full px-4 py-3 text-lg border-2 border-line rounded-xs text-ink focus:outline-none focus:border-terracotta transition-colors"
           autoComplete="off"
         />
 
         {searching && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <motion.div
-              className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-            />
+            <Agwo size={18} className="text-terracotta" />
           </div>
         )}
 
@@ -382,16 +349,16 @@ function StepLocation({ profile, update, onNext, onBack }) {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-gray-200 overflow-hidden shadow-lg"
+            className="absolute top-full left-0 right-0 mt-2 rounded-xs border border-line overflow-hidden shadow-lg"
             style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', zIndex: 50 }}
           >
             {results.map((result, i) => (
               <button
                 key={i}
                 onClick={() => select(result.label)}
-                className="w-full text-left px-4 py-3 text-sm text-gray-800 hover:bg-brand-50 hover:text-brand-600 transition-colors flex items-center gap-3 border-b border-gray-100 last:border-0"
+                className="w-full text-left px-4 py-3 text-sm text-ink hover:bg-terracotta-soft hover:text-terracotta transition-colors flex items-center gap-3 border-b border-line last:border-0"
               >
-                <span className="text-base">📍</span>
+                <MapPin size={14} strokeWidth={1.5} className="text-ink-3 flex-shrink-0" />
                 <span>{result.label}</span>
               </button>
             ))}
@@ -403,13 +370,13 @@ function StepLocation({ profile, update, onNext, onBack }) {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mt-3 p-3 bg-brand-50 rounded-xl flex items-center gap-2"
+          className="mt-3 p-3 bg-terracotta-soft rounded-xs flex items-center gap-2"
         >
-          <span>📍</span>
-          <span className="text-brand-600 text-sm font-medium">{profile.location}</span>
+          <MapPin size={14} strokeWidth={1.5} className="text-terracotta flex-shrink-0" />
+          <span className="text-terracotta text-sm font-medium">{profile.location}</span>
           <button
             onClick={() => { setQuery(''); update('location', ''); }}
-            className="ml-auto text-brand-400 hover:text-brand-600 text-xs"
+            className="ml-auto text-terracotta hover:text-terracotta text-xs"
           >
             change
           </button>
@@ -429,14 +396,14 @@ function StepLocation({ profile, update, onNext, onBack }) {
 // ─────────────────────────────────────────
 function StepOrgType({ profile, update, onNext, onBack }) {
   const ORG_TYPES = [
-    { value: 'individual', label: 'Personal',      desc: 'Birthday parties, weddings, house events',  emoji: '🎉', example: 'e.g. "I need a photographer for my wedding"' },
-    { value: 'company',    label: 'Event Business', desc: 'You run or manage events professionally',   emoji: '🎪', example: "e.g. \"I'm an event planner hiring a caterer\"" },
-    { value: 'corporate',  label: 'Corporate',      desc: 'Company events, launches, conferences',     emoji: '🏢', example: 'e.g. "Our company needs staff for a product launch"' },
+    { value: 'individual', label: 'Personal',      desc: 'Birthday parties, weddings, house events',  icon: PartyPopper, example: 'e.g. "I need a photographer for my wedding"' },
+    { value: 'company',    label: 'Event Business', desc: 'You run or manage events professionally',   icon: Tent, example: "e.g. \"I'm an event planner hiring a caterer\"" },
+    { value: 'corporate',  label: 'Corporate',      desc: 'Company events, launches, conferences',     icon: Building2, example: 'e.g. "Our company needs staff for a product launch"' },
   ]
 
   return (
     <Card>
-      <Emoji>🎯</Emoji>
+      <StepIcon icon={Target} />
       <Title>What kind of events do you organise?</Title>
       <Subtitle>This helps providers understand your needs before they even bid</Subtitle>
 
@@ -445,23 +412,23 @@ function StepOrgType({ profile, update, onNext, onBack }) {
           <button
             key={opt.value}
             onClick={() => update('org_type', opt.value)}
-            className={`p-4 rounded-xl border-2 text-left transition-all ${
+            className={`p-4 rounded-xs border-2 text-left transition-all ${
               profile.org_type === opt.value
-                ? 'border-brand-500 bg-brand-50'
-                : 'border-gray-200 hover:border-gray-300 bg-white/50'
+                ? 'border-terracotta bg-terracotta-soft'
+                : 'border-line hover:border-ink-3 bg-white/50'
             }`}
           >
             <div className="flex items-start gap-4">
-              <span className="text-2xl mt-0.5">{opt.emoji}</span>
+              <opt.icon size={20} strokeWidth={1.5} className="mt-0.5 flex-shrink-0 text-terracotta" />
               <div className="flex-1">
-                <div className="font-semibold text-gray-900">{opt.label}</div>
-                <div className="text-sm text-gray-500 mt-0.5">{opt.desc}</div>
-                <div className={`text-xs mt-1.5 italic ${profile.org_type === opt.value ? 'text-brand-400' : 'text-gray-400'}`}>
+                <div className="font-semibold text-ink">{opt.label}</div>
+                <div className="text-sm text-ink-2 mt-0.5">{opt.desc}</div>
+                <div className={`text-xs mt-1.5 italic ${profile.org_type === opt.value ? 'text-terracotta' : 'text-ink-3'}`}>
                   {opt.example}
                 </div>
               </div>
               {profile.org_type === opt.value && (
-                <span className="text-brand-500 font-bold text-lg self-center">✓</span>
+                <Check size={18} strokeWidth={2.5} className="text-terracotta self-center flex-shrink-0" />
               )}
             </div>
           </button>
@@ -475,7 +442,7 @@ function StepOrgType({ profile, update, onNext, onBack }) {
             value={profile.org_name}
             onChange={e => update('org_name', e.target.value)}
             placeholder={profile.org_type === 'company' ? 'Your business name' : 'Your company name'}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-brand-500 transition-colors"
+            className="w-full px-4 py-3 border-2 border-line rounded-xs text-ink focus:outline-none focus:border-terracotta transition-colors"
           />
         </motion.div>
       )}
@@ -502,7 +469,7 @@ function StepCategories({ profile, update, onNext, onBack }) {
 
   return (
     <Card>
-      <Emoji>🎯</Emoji>
+      <StepIcon icon={Target} />
       <Title>What services do you offer?</Title>
       <Subtitle>Pick all that apply — you can change this later</Subtitle>
 
@@ -513,12 +480,12 @@ function StepCategories({ profile, update, onNext, onBack }) {
             <button
               key={cat.slug}
               onClick={() => toggle(cat.slug)}
-              className={`p-3 rounded-xl border-2 text-center transition-all ${
-                selected ? 'border-brand-500 bg-brand-50' : 'border-gray-200 hover:border-gray-300 bg-white'
+              className={`p-3 rounded-xs border-2 text-center transition-all ${
+                selected ? 'border-terracotta bg-terracotta-soft' : 'border-line hover:border-ink-3 bg-white'
               }`}
             >
-              <div className="text-2xl mb-1">{cat.emoji}</div>
-              <div className={`text-xs font-medium leading-tight ${selected ? 'text-brand-600' : 'text-gray-700'}`}>
+              <cat.icon size={18} strokeWidth={1.5} className={`mx-auto mb-1.5 ${selected ? 'text-terracotta' : 'text-ink-3'}`} />
+              <div className={`text-xs font-medium leading-tight ${selected ? 'text-terracotta' : 'text-ink-2'}`}>
                 {cat.label}
               </div>
             </button>
@@ -527,7 +494,7 @@ function StepCategories({ profile, update, onNext, onBack }) {
       </div>
 
       {profile.selectedCategories.length > 0 && (
-        <p className="text-sm text-brand-500 font-medium mt-3 text-center">
+        <p className="text-sm text-terracotta font-medium mt-3 text-center">
           {profile.selectedCategories.length} service{profile.selectedCategories.length > 1 ? 's' : ''} selected
         </p>
       )}
@@ -548,7 +515,7 @@ function StepBio({ profile, update, onNext, onBack }) {
 
   return (
     <Card>
-      <Emoji>✍️</Emoji>
+      <StepIcon icon={PenLine} />
       <Title>Tell people about yourself</Title>
       <Subtitle>
         {isProvider ? 'This shows on your profile — make it count' : 'Help providers understand what kind of events you run'}
@@ -561,21 +528,21 @@ function StepBio({ profile, update, onNext, onBack }) {
           ? "e.g. Award-winning photographer with 6 years specialising in weddings and corporate events across West Africa..."
           : "e.g. I organise corporate retreats and brand activations for mid-size companies..."}
         rows={4}
-        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-brand-500 transition-colors mt-6 resize-none"
+        className="w-full px-4 py-3 border-2 border-line rounded-xs text-ink focus:outline-none focus:border-terracotta transition-colors mt-6 resize-none"
       />
 
       {isProvider && (
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Years of experience</label>
+          <label className="block text-sm font-medium text-ink-2 mb-2">Years of experience</label>
           <div className="flex gap-2 flex-wrap">
             {['1', '2', '3', '4', '5', '6–10', '10+'].map(yr => (
               <button
                 key={yr}
                 onClick={() => update('years_experience', yr)}
-                className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                className={`px-4 py-2 rounded-xs border-2 text-sm font-medium transition-all ${
                   profile.years_experience === yr
-                    ? 'border-brand-500 bg-brand-50 text-brand-600'
-                    : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                    ? 'border-terracotta bg-terracotta-soft text-terracotta'
+                    : 'border-line text-ink-2 hover:border-ink-3'
                 }`}
               >
                 {yr} {yr === '1' ? 'year' : 'years'}
@@ -600,40 +567,34 @@ function StepDone({ profile, onFinish, saving }) {
   return (
     <Card>
       <div className="text-center py-4">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 12 }}
-          className="text-6xl mb-6"
-        >
-          🎉
-        </motion.div>
-        <h2 className="text-2xl font-bold text-gray-900">
-          You're all set, {profile.full_name.split(' ')[0]}!
+        {/* Ìsì — the knot, two lines becoming one. Setup complete. */}
+        <Isi size={64} className="text-terracotta mx-auto mb-6" />
+        <h2 className="t-h1 text-ink">
+          You&apos;re all set, {profile.full_name.split(' ')[0]}
         </h2>
-        <p className="text-gray-500 mt-2 mb-8">
+        <p className="text-ink-2 mt-2 mb-8">
           {profile.role === 'hirer'
             ? "Your account is ready. Start posting jobs and finding great talent."
             : "Your profile is ready. Start browsing jobs and winning contracts."}
         </p>
 
-        <div className="bg-gray-50 rounded-xl p-4 text-left mb-8 space-y-2">
+        <div className="bg-cream rounded-md p-4 text-left mb-8 space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Name</span>
-            <span className="font-medium text-gray-900">{profile.full_name}</span>
+            <span className="text-ink-2">Name</span>
+            <span className="font-medium text-ink">{profile.full_name}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Location</span>
-            <span className="font-medium text-gray-900">{profile.location}</span>
+            <span className="text-ink-2">Location</span>
+            <span className="font-medium text-ink">{profile.location}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Role</span>
-            <span className="font-medium text-gray-900 capitalize">{profile.role}</span>
+            <span className="text-ink-2">Role</span>
+            <span className="font-medium text-ink capitalize">{profile.role}</span>
           </div>
           {profile.selectedCategories.length > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Services</span>
-              <span className="font-medium text-gray-900">{profile.selectedCategories.length} selected</span>
+              <span className="text-ink-2">Services</span>
+              <span className="font-medium text-ink">{profile.selectedCategories.length} selected</span>
             </div>
           )}
         </div>
@@ -641,9 +602,9 @@ function StepDone({ profile, onFinish, saving }) {
         <button
           onClick={onFinish}
           disabled={saving}
-          className="w-full bg-brand-500 hover:bg-brand-600 text-white py-3 rounded-xl font-semibold text-base transition-colors disabled:opacity-50"
+          className="w-full bg-terracotta hover:bg-terracotta-deep text-white py-3 rounded-sm font-semibold text-base transition-colors disabled:opacity-50"
         >
-          {saving ? 'Saving...' : 'Go to my dashboard →'}
+          {saving ? 'Saving…' : 'Go to my dashboard'}
         </button>
       </div>
     </Card>
@@ -655,29 +616,29 @@ function StepDone({ profile, onFinish, saving }) {
 // ─────────────────────────────────────────
 function Card({ children }) {
   return (
-    <div className="rounded-2xl border border-white/40 p-8"
-      style={{
-        background: 'rgba(255, 255, 255, 0.55)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        boxShadow: '0 8px 32px rgba(253, 94, 83, 0.08), 0 2px 8px rgba(0,0,0,0.06)',
-      }}
+    <div className="rounded-md border border-line bg-surface p-8"
+      style={{ boxShadow: '0 8px 32px rgba(43, 33, 24, 0.06), 0 2px 8px rgba(43, 33, 24, 0.04)' }}
     >
       {children}
     </div>
   )
 }
 
-function Emoji({ children }) {
-  return <div className="text-4xl mb-4">{children}</div>
+function StepIcon({ icon: Icon }) {
+  return (
+    <div className="w-11 h-11 flex items-center justify-center mb-4 rounded-sm
+                    bg-terracotta-soft text-terracotta">
+      <Icon size={20} strokeWidth={1.5} />
+    </div>
+  )
 }
 
 function Title({ children }) {
-  return <h2 className="text-2xl font-bold text-gray-900">{children}</h2>
+  return <h2 className="text-2xl font-bold text-ink">{children}</h2>
 }
 
 function Subtitle({ children }) {
-  return <p className="text-gray-500 mt-1 text-sm">{children}</p>
+  return <p className="text-ink-2 mt-1 text-sm">{children}</p>
 }
 
 function NextButton({ onClick, disabled }) {
@@ -685,9 +646,9 @@ function NextButton({ onClick, disabled }) {
     <button
       onClick={onClick}
       disabled={disabled}
-      className="flex-1 bg-brand-500 hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed text-white py-3 px-6 rounded-xl font-semibold transition-colors"
+      className="flex-1 bg-terracotta hover:bg-terracotta-deep disabled:opacity-40 disabled:cursor-not-allowed text-white py-3 px-6 rounded-sm font-semibold transition-colors"
     >
-      Continue →
+      Continue <ArrowRight size={15} strokeWidth={2} />
     </button>
   )
 }
@@ -696,9 +657,9 @@ function BackButton({ onClick }) {
   return (
     <button
       onClick={onClick}
-      className="px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-medium hover:border-gray-300 transition-colors"
+      className="px-6 py-3 rounded-sm border-2 border-line text-ink-2 font-medium hover:border-ink-3 transition-colors"
     >
-      ← Back
+      <ArrowLeft size={15} strokeWidth={2} /> Back
     </button>
   )
 }

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Inbox from '@/components/messages/Inbox'
+import AppBackdrop from '@/components/motifs/AppBackdrop'
 
 export default async function MessagesPage() {
   const supabase = await createClient()
@@ -32,7 +33,8 @@ export default async function MessagesPage() {
     .order('last_message_at', { ascending: false })
 
   return (
-    <div className="min-h-screen" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen bg-cream relative">
+      <AppBackdrop section="messages" />
       <Navbar profile={profile} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
         <Inbox

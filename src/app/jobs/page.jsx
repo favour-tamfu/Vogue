@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import JobBoard from '@/components/jobs/JobBoard'
 import Navbar from '@/components/layout/Navbar'
+import AppBackdrop from '@/components/motifs/AppBackdrop'
 
 export default async function JobsPage() {
   const supabase = await createClient()
@@ -37,7 +38,8 @@ export default async function JobsPage() {
     .order('name')
 
   return (
-    <div className="min-h-screen" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen bg-cream relative">
+      <AppBackdrop section="jobs" />
       <Navbar profile={profile} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
         <JobBoard

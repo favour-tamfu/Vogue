@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { DEFAULT_CURRENCY } from '@/lib/currency'
 
 export async function POST(request) {
   const supabase = await createClient()
@@ -29,7 +30,7 @@ export async function POST(request) {
       location:       body.location,
       budget_min:     body.budget_min     || null,
       budget_max:     body.budget_max,
-      currency:       body.currency       || 'USD',
+      currency:       body.currency       || DEFAULT_CURRENCY,
       headcount:      body.headcount      || null,
       duration_hours: body.duration_hours || null,
     })

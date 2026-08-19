@@ -4,13 +4,6 @@ import { useState } from 'react'
 import HirerView from './HirerView'
 import ProviderView from './ProviderView'
 
-const T = {
-  navy:      '#0F172A',
-  coral:     '#E8523A',
-  border:    '#E2E8F0',
-  textLight: '#94A3B8',
-}
-
 export default function BothView({
   profile, recentJobs, myJobs, pendingReviews,
   recentBids, feedItems, unreadMessages,
@@ -20,10 +13,7 @@ export default function BothView({
 
   return (
     <div>
-      <div
-        className="inline-flex items-center mb-5 border"
-        style={{ borderColor: T.border, borderRadius: 4, background: '#fff', padding: 3 }}
-      >
+      <div className="inline-flex items-center mb-5 border border-line rounded-xs bg-surface p-[3px]">
         {[
           { key: 'hirer',    label: 'Hirer View'    },
           { key: 'provider', label: 'Provider View' },
@@ -31,11 +21,11 @@ export default function BothView({
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className="px-5 py-1.5 text-sm font-semibold transition-all"
-            style={activeTab === tab.key
-              ? { background: T.navy, color: '#fff', borderRadius: 3 }
-              : { color: T.textLight }
-            }
+            className={`px-5 py-1.5 text-sm font-semibold transition-all rounded-[3px] ${
+              activeTab === tab.key
+                ? 'bg-ink text-white'
+                : 'text-ink-3'
+            }`}
           >
             {tab.label}
           </button>

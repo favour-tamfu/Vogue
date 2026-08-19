@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/layout/Navbar'
 import Feed from '@/components/feed/Feed'
+import AppBackdrop from '@/components/motifs/AppBackdrop'
 
 export default async function FeedPage() {
   const supabase = await createClient()
@@ -118,7 +119,8 @@ export default async function FeedPage() {
     }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen bg-cream relative">
+      <AppBackdrop section="feed" />
       <Navbar profile={currentUser} />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-20 pb-24">
         <Feed

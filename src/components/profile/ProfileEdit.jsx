@@ -4,21 +4,10 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
-  ArrowLeft, User, MapPin, Briefcase,
+  ArrowLeft, User, Briefcase,
   CheckCircle, AlertCircle, Camera, Save
 } from 'lucide-react'
 import Link from 'next/link'
-
-const T = {
-  navy:       '#0F172A',
-  navyMid:    '#1E293B',
-  coral:      '#E8523A',
-  coralLight: '#FEF0ED',
-  border:     '#E2E8F0',
-  bg:         '#F8FAFC',
-  textMuted:  '#64748B',
-  textLight:  '#94A3B8',
-}
 
 const EVENT_TYPES_ORG = [
   { value: 'individual', label: 'Personal',      desc: 'Birthday parties, weddings, house events' },
@@ -84,7 +73,7 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
         const ext      = avatarFile.name.split('.').pop()
         const fileName = `avatars/${profile.id}.${ext}`
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('portfolio')
           .upload(fileName, avatarFile, { upsert: true })
 
@@ -147,7 +136,7 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
         router.refresh()
       }, 1000)
 
-    } catch (e) {
+    } catch {
       setError('Something went wrong — please try again')
     }
 
@@ -161,38 +150,35 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
         <div>
           <Link
             href={`/providers/${profile.id}`}
-            className="inline-flex items-center gap-1.5 text-sm mb-2 transition-opacity hover:opacity-70"
-            style={{ color: T.textMuted }}
+            className="inline-flex items-center gap-1.5 text-sm mb-2 transition-opacity hover:opacity-70 text-ink-2"
           >
             <ArrowLeft size={14} strokeWidth={1.5} /> My Profile
           </Link>
-          <h1 className="text-xl font-semibold" style={{ color: T.navy }}>Edit Profile</h1>
+          <h1 className="t-h1 text-ink">Edit Profile</h1>
         </div>
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 p-3 border mb-5 text-sm"
-          style={{ background: '#F0FDF4', borderColor: '#86EFAC', borderRadius: 4, color: '#16A34A' }}>
+        <div className="flex items-center gap-2 p-3 border border-line rounded-xs mb-5 text-sm
+                        bg-verified-bg text-verified">
           <CheckCircle size={14} strokeWidth={1.5} />
-          Profile saved! Redirecting...
+          Profile saved! Redirecting…
         </div>
       )}
 
       <div className="space-y-5">
 
         {/* Avatar */}
-        <div className="bg-white border p-5" style={{ borderColor: T.border, borderRadius: 4 }}>
-          <div className="flex items-center gap-2 pb-4 mb-5 border-b" style={{ borderColor: T.border }}>
-            <User size={14} strokeWidth={1.5} style={{ color: T.textLight }} />
-            <h2 className="text-sm font-semibold" style={{ color: T.navy }}>Profile Photo</h2>
+        <div className="bg-surface border border-line rounded-md p-5">
+          <div className="flex items-center gap-2 pb-4 mb-5 border-b border-line">
+            <User size={14} strokeWidth={1.5} className="text-ink-3" />
+            <h2 className="t-h3 text-ink">Profile Photo</h2>
           </div>
 
           <div className="flex items-center gap-5">
             <div className="relative">
-              <div
-                className="w-20 h-20 flex items-center justify-center text-white text-2xl font-bold overflow-hidden"
-                style={{ background: T.navy, borderRadius: 8 }}
-              >
+              <div className="w-20 h-20 flex items-center justify-center text-white text-2xl font-bold
+                              overflow-hidden bg-ink rounded-sm">
                 {avatarPreview ? (
                   <img src={avatarPreview} alt="Avatar"
                     className="w-full h-full object-cover" />
@@ -202,8 +188,8 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
               </div>
               <button
                 onClick={() => fileRef.current?.click()}
-                className="absolute -bottom-1 -right-1 w-7 h-7 flex items-center justify-center text-white"
-                style={{ background: T.coral, borderRadius: '50%' }}
+                className="absolute -bottom-1 -right-1 w-7 h-7 flex items-center justify-center
+                           text-white rounded-full bg-terracotta transition-colors hover:bg-terracotta-deep"
               >
                 <Camera size={13} strokeWidth={2} />
               </button>
@@ -216,16 +202,15 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
               />
             </div>
             <div>
-              <p className="text-sm font-medium" style={{ color: T.navy }}>
+              <p className="text-sm font-medium text-ink">
                 {profile.full_name}
               </p>
-              <p className="text-xs mt-0.5" style={{ color: T.textLight }}>
+              <p className="text-xs mt-0.5 text-ink-3">
                 JPG, PNG or WebP — max 5MB
               </p>
               <button
                 onClick={() => fileRef.current?.click()}
-                className="text-xs font-medium mt-1.5 transition-opacity hover:opacity-70"
-                style={{ color: T.coral }}
+                className="text-xs font-medium mt-1.5 text-terracotta hover:text-terracotta-deep"
               >
                 Change photo
               </button>
@@ -234,10 +219,10 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
         </div>
 
         {/* Basic info */}
-        <div className="bg-white border p-5" style={{ borderColor: T.border, borderRadius: 4 }}>
-          <div className="flex items-center gap-2 pb-4 mb-5 border-b" style={{ borderColor: T.border }}>
-            <User size={14} strokeWidth={1.5} style={{ color: T.textLight }} />
-            <h2 className="text-sm font-semibold" style={{ color: T.navy }}>Basic Information</h2>
+        <div className="bg-surface border border-line rounded-md p-5">
+          <div className="flex items-center gap-2 pb-4 mb-5 border-b border-line">
+            <User size={14} strokeWidth={1.5} className="text-ink-3" />
+            <h2 className="t-h3 text-ink">Basic Information</h2>
           </div>
 
           <div className="space-y-4">
@@ -247,10 +232,8 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
                 value={form.full_name}
                 onChange={e => update('full_name', e.target.value)}
                 placeholder="Your full name"
-                className="w-full px-3 py-2.5 text-sm border outline-none"
-                style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                onFocus={e => e.target.style.borderColor = T.navy}
-                onBlur={e => e.target.style.borderColor = T.border}
+                className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none text-ink
+                           placeholder:text-ink-3 focus:border-terracotta transition-colors"
               />
             </Field>
 
@@ -260,10 +243,8 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
                 value={form.location}
                 onChange={e => update('location', e.target.value)}
                 placeholder="e.g. Lagos, Nigeria"
-                className="w-full px-3 py-2.5 text-sm border outline-none"
-                style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                onFocus={e => e.target.style.borderColor = T.navy}
-                onBlur={e => e.target.style.borderColor = T.border}
+                className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none text-ink
+                           placeholder:text-ink-3 focus:border-terracotta transition-colors"
               />
             </Field>
 
@@ -273,10 +254,8 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
                 value={form.phone}
                 onChange={e => update('phone', e.target.value)}
                 placeholder="e.g. +234 800 000 0000"
-                className="w-full px-3 py-2.5 text-sm border outline-none"
-                style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                onFocus={e => e.target.style.borderColor = T.navy}
-                onBlur={e => e.target.style.borderColor = T.border}
+                className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none text-ink
+                           placeholder:text-ink-3 focus:border-terracotta transition-colors"
               />
             </Field>
 
@@ -285,13 +264,11 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
                 value={form.bio}
                 onChange={e => update('bio', e.target.value)}
                 placeholder={isProvider
-                  ? 'Describe your experience, specialties, and what makes you stand out...'
-                  : 'Describe the types of events you organise...'}
+                  ? 'Describe your experience, specialties, and what makes you stand out…'
+                  : 'Describe the types of events you organise…'}
                 rows={4}
-                className="w-full px-3 py-2.5 text-sm border outline-none resize-none"
-                style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                onFocus={e => e.target.style.borderColor = T.navy}
-                onBlur={e => e.target.style.borderColor = T.border}
+                className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none resize-none
+                           text-ink placeholder:text-ink-3 focus:border-terracotta transition-colors"
               />
             </Field>
           </div>
@@ -299,10 +276,10 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
 
         {/* Hirer details */}
         {isHirer && (
-          <div className="bg-white border p-5" style={{ borderColor: T.border, borderRadius: 4 }}>
-            <div className="flex items-center gap-2 pb-4 mb-5 border-b" style={{ borderColor: T.border }}>
-              <Briefcase size={14} strokeWidth={1.5} style={{ color: T.textLight }} />
-              <h2 className="text-sm font-semibold" style={{ color: T.navy }}>Hirer Details</h2>
+          <div className="bg-surface border border-line rounded-md p-5">
+            <div className="flex items-center gap-2 pb-4 mb-5 border-b border-line">
+              <Briefcase size={14} strokeWidth={1.5} className="text-ink-3" />
+              <h2 className="t-h3 text-ink">Hirer Details</h2>
             </div>
 
             <div className="space-y-4">
@@ -312,17 +289,16 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
                     <button
                       key={opt.value}
                       onClick={() => update('org_type', opt.value)}
-                      className="p-3 border text-left transition-all"
-                      style={{
-                        borderRadius: 4,
-                        borderColor: form.org_type === opt.value ? T.coral : T.border,
-                        background:  form.org_type === opt.value ? T.coralLight : '#fff',
-                      }}
+                      className={`p-3 border rounded-xs text-left transition-all ${
+                        form.org_type === opt.value
+                          ? 'border-terracotta bg-terracotta-soft'
+                          : 'border-line bg-surface'
+                      }`}
                     >
-                      <div className="text-xs font-semibold" style={{ color: T.navy }}>
+                      <div className="t-label text-ink">
                         {opt.label}
                       </div>
-                      <div className="text-xs mt-0.5" style={{ color: T.textLight }}>
+                      <div className="text-xs mt-0.5 text-ink-3">
                         {opt.desc}
                       </div>
                     </button>
@@ -337,10 +313,8 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
                     value={form.org_name}
                     onChange={e => update('org_name', e.target.value)}
                     placeholder="Your company or business name"
-                    className="w-full px-3 py-2.5 text-sm border outline-none"
-                    style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                    onFocus={e => e.target.style.borderColor = T.navy}
-                    onBlur={e => e.target.style.borderColor = T.border}
+                    className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none text-ink
+                               placeholder:text-ink-3 focus:border-terracotta transition-colors"
                   />
                 </Field>
               )}
@@ -350,10 +324,10 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
 
         {/* Provider details */}
         {isProvider && (
-          <div className="bg-white border p-5" style={{ borderColor: T.border, borderRadius: 4 }}>
-            <div className="flex items-center gap-2 pb-4 mb-5 border-b" style={{ borderColor: T.border }}>
-              <Briefcase size={14} strokeWidth={1.5} style={{ color: T.textLight }} />
-              <h2 className="text-sm font-semibold" style={{ color: T.navy }}>Provider Details</h2>
+          <div className="bg-surface border border-line rounded-md p-5">
+            <div className="flex items-center gap-2 pb-4 mb-5 border-b border-line">
+              <Briefcase size={14} strokeWidth={1.5} className="text-ink-3" />
+              <h2 className="t-h3 text-ink">Provider Details</h2>
             </div>
 
             <div className="space-y-5">
@@ -363,13 +337,11 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
                     <button
                       key={yr}
                       onClick={() => update('years_experience', yr)}
-                      className="px-4 py-2 border text-xs font-medium transition-all"
-                      style={{
-                        borderRadius: 4,
-                        borderColor: form.years_experience === yr ? T.coral : T.border,
-                        background:  form.years_experience === yr ? T.coralLight : '#fff',
-                        color:       form.years_experience === yr ? T.coral : T.textMuted,
-                      }}
+                      className={`px-4 py-2 border rounded-xs text-xs font-medium transition-all ${
+                        form.years_experience === yr
+                          ? 'border-terracotta bg-terracotta-soft text-terracotta'
+                          : 'border-line bg-surface text-ink-2'
+                      }`}
                     >
                       {yr} {yr === '1' ? 'year' : 'years'}
                     </button>
@@ -383,13 +355,11 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
                     <button
                       key={cat.id}
                       onClick={() => toggleCategory(cat.id)}
-                      className="px-3 py-2 border text-xs font-medium text-left transition-all"
-                      style={{
-                        borderRadius: 4,
-                        borderColor: selectedCats.includes(cat.id) ? T.coral : T.border,
-                        background:  selectedCats.includes(cat.id) ? T.coralLight : '#fff',
-                        color:       selectedCats.includes(cat.id) ? T.coral : T.textMuted,
-                      }}
+                      className={`px-3 py-2 border rounded-xs text-xs font-medium text-left transition-all ${
+                        selectedCats.includes(cat.id)
+                          ? 'border-terracotta bg-terracotta-soft text-terracotta'
+                          : 'border-line bg-surface text-ink-2'
+                      }`}
                     >
                       {cat.name}
                     </button>
@@ -401,8 +371,7 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
         )}
 
         {error && (
-          <div className="flex items-center gap-2 p-3 border text-sm"
-            style={{ borderColor: '#FECACA', background: '#FFF5F5', borderRadius: 4, color: '#DC2626' }}>
+          <div className="flex items-center gap-2 p-3 border border-line rounded-xs text-sm bg-danger-bg text-danger">
             <AlertCircle size={14} strokeWidth={1.5} /> {error}
           </div>
         )}
@@ -411,11 +380,11 @@ export default function ProfileEdit({ profile, categories, selectedCategoryIds }
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          style={{ background: T.coral, borderRadius: 4 }}
+          className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-white
+                     rounded-sm bg-terracotta transition-colors hover:bg-terracotta-deep disabled:opacity-50"
         >
           <Save size={15} strokeWidth={2} />
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? 'Saving…' : 'Save Changes'}
         </button>
 
       </div>
@@ -427,9 +396,9 @@ function Field({ label, required, hint, children }) {
   return (
     <div>
       <div className="flex items-baseline gap-1 mb-1.5">
-        <label className="text-xs font-semibold" style={{ color: '#1E293B' }}>{label}</label>
-        {required && <span className="text-xs" style={{ color: '#E8523A' }}>*</span>}
-        {hint && <span className="text-xs" style={{ color: '#94A3B8' }}>— {hint}</span>}
+        <label className="t-label text-ink-2">{label}</label>
+        {required && <span className="text-xs text-terracotta">*</span>}
+        {hint && <span className="text-xs text-ink-3">— {hint}</span>}
       </div>
       {children}
     </div>

@@ -6,20 +6,13 @@ import { createClient } from '@/lib/supabase/client'
 import {
   Star, MapPin, DollarSign, Users,
   Heart, Bookmark, Share2, CheckCircle,
-  Briefcase, Image, UserPlus, ArrowRight,
-  MessageCircle, Award
+  Briefcase, Image as ImageIcon, UserPlus, ArrowRight,
+  Award
 } from 'lucide-react'
-
-const T = {
-  navy:       '#0F172A',
-  navyMid:    '#1E293B',
-  coral:      '#E8523A',
-  coralLight: '#FEF0ED',
-  border:     '#E2E8F0',
-  bg:         '#F8FAFC',
-  textMuted:  '#64748B',
-  textLight:  '#94A3B8',
-}
+import VerifiedBadge from '@/components/ui/VerifiedBadge'
+import { formatBudget } from '@/lib/currency'
+import { PRODUCT_NAME } from '@/lib/brand'
+import Akwukwo from '@/components/motifs/Akwukwo'
 
 function timeAgo(dateStr) {
   const diff   = Date.now() - new Date(dateStr).getTime()
@@ -32,19 +25,12 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
-function formatBudget(min, max, currency) {
-  const symbols = { USD: '$', EUR: '€', GBP: '£', NGN: '₦', GHS: 'GH₵', XAF: 'FCFA' }
-  const sym = symbols[currency] || '$'
-  if (min) return `${sym}${Number(min).toLocaleString()} – ${sym}${Number(max).toLocaleString()}`
-  return `Up to ${sym}${Number(max).toLocaleString()}`
-}
-
 // ── Shared action bar used by every card ──
 function ActionBar({ itemId, itemType, currentUser, isLiked, isSaved, onLike, onSave, shareUrl, shareText }) {
   const [liked, setLiked]   = useState(isLiked)
   const [saved, setSaved]   = useState(isSaved)
-  const [likes, setLikes]   = useState(0)
   const [busy, setBusy]     = useState(false)
+  const [copied, setCopied] = useState(false)
   const supabase = createClient()
 
   const handleLike = async () => {
@@ -54,13 +40,11 @@ function ActionBar({ itemId, itemType, currentUser, isLiked, isSaved, onLike, on
       await supabase.from('feed_likes').delete()
         .eq('user_id', currentUser.id).eq('item_id', itemId)
       setLiked(false)
-      setLikes(l => Math.max(0, l - 1))
     } else {
       await supabase.from('feed_likes').insert({
         user_id: currentUser.id, item_id: itemId, item_type: itemType
       })
       setLiked(true)
-      setLikes(l => l + 1)
     }
     setBusy(false)
     if (onLike) onLike(!liked)
@@ -85,34 +69,31 @@ function ActionBar({ itemId, itemType, currentUser, isLiked, isSaved, onLike, on
 
   const handleShare = () => {
     const url  = shareUrl || window.location.href
-    const text = shareText || 'Check this out on Vogue Events'
+    const text = shareText || `Check this out on ${PRODUCT_NAME}`
     if (navigator.share) {
       navigator.share({ title: text, url })
     } else {
       navigator.clipboard.writeText(url)
-      alert('Link copied to clipboard!')
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     }
   }
 
   return (
-    <div
-      className="flex items-center gap-1 px-4 py-2.5 border-t"
-      style={{ borderColor: T.border }}
-    >
+    <div className="flex items-center gap-1 px-4 py-2.5 border-t border-line">
       {/* Like */}
       <button
         onClick={handleLike}
         disabled={!currentUser}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors hover:bg-slate-50 disabled:opacity-40"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xs transition-colors hover:bg-cream disabled:opacity-40"
         title={!currentUser ? 'Log in to like' : liked ? 'Unlike' : 'Like'}
       >
         <Heart
           size={16}
           strokeWidth={1.5}
-          className={`transition-colors ${liked ? 'fill-red-500 text-red-500' : ''}`}
-          style={{ color: liked ? undefined : T.textLight }}
+          className={`transition-colors ${liked ? 'fill-terracotta text-terracotta' : 'text-ink-3'}`}
         />
-        <span className="text-xs font-medium" style={{ color: liked ? '#EF4444' : T.textLight }}>
+        <span className={`text-xs font-medium ${liked ? 'text-terracotta' : 'text-ink-3'}`}>
           Like
         </span>
       </button>
@@ -122,17 +103,15 @@ function ActionBar({ itemId, itemType, currentUser, isLiked, isSaved, onLike, on
         <button
           onClick={handleSave}
           disabled={!currentUser}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors hover:bg-slate-50 disabled:opacity-40"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xs transition-colors hover:bg-cream disabled:opacity-40"
           title={!currentUser ? 'Log in to save' : saved ? 'Unsave' : 'Save'}
         >
           <Bookmark
             size={16}
             strokeWidth={1.5}
-            className={`transition-colors ${saved ? 'fill-current' : ''}`}
-            style={{ color: saved ? T.coral : T.textLight }}
+            className={`transition-colors ${saved ? 'fill-current text-terracotta' : 'text-ink-3'}`}
           />
-          <span className="text-xs font-medium"
-            style={{ color: saved ? T.coral : T.textLight }}>
+          <span className={`text-xs font-medium ${saved ? 'text-terracotta' : 'text-ink-3'}`}>
             {saved ? 'Saved' : 'Save'}
           </span>
         </button>
@@ -141,26 +120,23 @@ function ActionBar({ itemId, itemType, currentUser, isLiked, isSaved, onLike, on
       {/* Share */}
       <button
         onClick={handleShare}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors hover:bg-slate-50"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xs transition-colors hover:bg-cream"
       >
-        <Share2 size={16} strokeWidth={1.5} style={{ color: T.textLight }} />
-        <span className="text-xs font-medium" style={{ color: T.textLight }}>Share</span>
+        <Share2 size={16} strokeWidth={1.5} className="text-ink-3" />
+        <span className="text-xs font-medium text-ink-3">{copied ? 'Copied' : 'Share'}</span>
       </button>
     </div>
   )
 }
 
 // ── Shared card header ──
-function CardHeader({ avatarInitial, avatarUrl, name, profileLink, subtitle, badge, badgeBg, badgeColor, badgeIcon: BadgeIcon, time }) {
+function CardHeader({ avatarInitial, avatarUrl, name, profileLink, subtitle, badge, badgeClassName, badgeIcon: BadgeIcon, time }) {
   return (
-    <div className="flex items-start justify-between gap-3 px-4 py-3.5 border-b"
-      style={{ borderColor: T.border }}>
+    <div className="flex items-start justify-between gap-3 px-4 py-3.5 border-b border-line">
       <div className="flex items-center gap-3">
         <Link href={profileLink || '#'}>
-          <div
-            className="w-9 h-9 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 overflow-hidden"
-            style={{ background: T.navy, borderRadius: 6 }}
-          >
+          <div className="w-9 h-9 flex items-center justify-center text-white text-sm font-bold
+                          flex-shrink-0 overflow-hidden bg-ink rounded-sm">
             {avatarUrl
               ? <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
               : (avatarInitial || '?')
@@ -169,24 +145,21 @@ function CardHeader({ avatarInitial, avatarUrl, name, profileLink, subtitle, bad
         </Link>
         <div>
           <Link href={profileLink || '#'}>
-            <span className="text-sm font-semibold hover:underline" style={{ color: T.navy }}>
+            <span className="text-sm font-semibold hover:underline text-ink">
               {name}
             </span>
           </Link>
           {subtitle && (
-            <p className="text-xs mt-0.5" style={{ color: T.textLight }}>{subtitle}</p>
+            <p className="text-xs mt-0.5 text-ink-3">{subtitle}</p>
           )}
         </div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
-        <span
-          className="flex items-center gap-1 text-xs font-medium px-2 py-0.5"
-          style={{ background: badgeBg, color: badgeColor, borderRadius: 4 }}
-        >
+        <span className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-xs ${badgeClassName}`}>
           {BadgeIcon && <BadgeIcon size={10} strokeWidth={1.5} />}
           {badge}
         </span>
-        <span className="text-xs" style={{ color: T.textLight }}>{time}</span>
+        <span className="text-xs text-ink-3">{time}</span>
       </div>
     </div>
   )
@@ -210,27 +183,21 @@ export default function Feed({ feedItems, currentUser, savedIds, likedIds }) {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-xl font-semibold" style={{ color: T.navy }}>Live Feed</h1>
-        <p className="text-sm mt-0.5" style={{ color: T.textMuted }}>
-          What's happening on the platform
+        <h1 className="t-h1 text-ink">Live Feed</h1>
+        <p className="text-sm mt-0.5 text-ink-2">
+          What&apos;s happening on the platform
         </p>
       </div>
 
       {/* Filter tabs */}
-      <div
-        className="flex items-center bg-white border p-1 mb-5 overflow-x-auto"
-        style={{ borderColor: T.border, borderRadius: 4 }}
-      >
+      <div className="flex items-center bg-surface border border-line rounded-xs p-1 mb-5 overflow-x-auto">
         {filters.map(f => (
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
-            className="flex-shrink-0 px-4 py-1.5 text-xs font-semibold transition-all"
-            style={{
-              borderRadius: 3,
-              background: filter === f.key ? T.navy : 'transparent',
-              color:      filter === f.key ? '#fff' : T.textMuted,
-            }}
+            className={`flex-shrink-0 px-4 py-1.5 text-xs font-semibold rounded-[3px] transition-all ${
+              filter === f.key ? 'bg-ink text-white' : 'text-ink-2'
+            }`}
           >
             {f.label}
           </button>
@@ -239,9 +206,10 @@ export default function Feed({ feedItems, currentUser, savedIds, likedIds }) {
 
       <div className="space-y-4">
         {filtered.length === 0 ? (
-          <div className="bg-white border py-16 text-center"
-            style={{ borderColor: T.border, borderRadius: 4 }}>
-            <p className="text-sm" style={{ color: T.textMuted }}>Nothing here yet</p>
+          <div className="bg-surface border border-line rounded-md py-16 text-center">
+            {/* Akwụkwọ — leaf spray. */}
+            <Akwukwo size={92} className="text-terracotta mx-auto mb-4 opacity-70" />
+            <p className="text-sm text-ink-2">Nothing here yet</p>
           </div>
         ) : (
           filtered.map(item => {
@@ -278,8 +246,7 @@ function ProviderCard({ provider, currentUser, isLiked }) {
     ?.map(pc => pc.category?.name).filter(Boolean).slice(0, 3) || []
 
   return (
-    <div className="bg-white border overflow-hidden"
-      style={{ borderColor: T.border, borderRadius: 4 }}>
+    <div className="bg-surface border border-line rounded-md overflow-hidden">
 
       <CardHeader
         avatarInitial={provider.full_name?.charAt(0)}
@@ -288,23 +255,21 @@ function ProviderCard({ provider, currentUser, isLiked }) {
         profileLink={`/providers/${provider.id}`}
         subtitle={provider.location}
         badge="New Provider"
-        badgeBg="#EFF6FF"
-        badgeColor="#3B82F6"
+        badgeClassName="bg-ochre-soft text-ochre-text"
         badgeIcon={UserPlus}
         time={timeAgo(provider.created_at)}
       />
 
       {/* Content */}
       <div className="px-4 py-4">
-        {/* Verified badge */}
-        <div className="flex items-center gap-1.5 mb-3">
-          <CheckCircle size={13} strokeWidth={1.5} className="text-blue-500" />
-          <span className="text-xs font-medium text-blue-700">Verified Professional</span>
+        {/* Verified */}
+        <div className="mb-3">
+          <VerifiedBadge />
         </div>
 
         {/* Bio */}
         {provider.bio && (
-          <p className="text-sm leading-relaxed mb-3 line-clamp-3" style={{ color: T.textMuted }}>
+          <p className="text-sm leading-relaxed mb-3 line-clamp-3 text-ink-2">
             {provider.bio}
           </p>
         )}
@@ -313,8 +278,8 @@ function ProviderCard({ provider, currentUser, isLiked }) {
         {categories.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
             {categories.map(name => (
-              <span key={name} className="text-xs font-medium px-2.5 py-1"
-                style={{ background: T.coralLight, color: T.coral, borderRadius: 4 }}>
+              <span key={name}
+                className="text-xs font-medium px-2.5 py-1 rounded-xs bg-terracotta-soft text-terracotta">
                 {name}
               </span>
             ))}
@@ -323,8 +288,8 @@ function ProviderCard({ provider, currentUser, isLiked }) {
 
         <Link
           href={`/providers/${provider.id}`}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 text-white transition-opacity hover:opacity-90"
-          style={{ background: T.navy, borderRadius: 4 }}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 text-white
+                     rounded-sm bg-ink transition-opacity hover:opacity-90"
         >
           View Profile <ArrowRight size={12} />
         </Link>
@@ -336,7 +301,7 @@ function ProviderCard({ provider, currentUser, isLiked }) {
         currentUser={currentUser}
         isLiked={isLiked}
         shareUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/providers/${provider.id}`}
-        shareText={`Check out ${provider.full_name} on Vogue Events`}
+        shareText={`Check out ${provider.full_name} on ${PRODUCT_NAME}`}
       />
     </div>
   )
@@ -347,8 +312,7 @@ function JobCard({ job, currentUser, isLiked }) {
   const canBid = currentUser?.role === 'provider' || currentUser?.role === 'both'
 
   return (
-    <div className="bg-white border overflow-hidden"
-      style={{ borderColor: T.border, borderRadius: 4 }}>
+    <div className="bg-surface border border-line rounded-md overflow-hidden">
 
       <CardHeader
         avatarInitial={job.hirer?.full_name?.charAt(0)}
@@ -356,15 +320,14 @@ function JobCard({ job, currentUser, isLiked }) {
         profileLink="#"
         subtitle="Posted a new job"
         badge="New Job"
-        badgeBg="#FFFBEB"
-        badgeColor="#D97706"
+        badgeClassName="bg-ochre-soft text-ochre-text"
         badgeIcon={Briefcase}
         time={timeAgo(job.created_at)}
       />
 
       <div className="px-4 py-4">
         <Link href={`/jobs/${job.id}`}>
-          <h3 className="text-base font-semibold mb-3 hover:underline" style={{ color: T.navy }}>
+          <h3 className="t-h2 mb-3 hover:underline text-ink">
             {job.title}
           </h3>
         </Link>
@@ -372,13 +335,11 @@ function JobCard({ job, currentUser, isLiked }) {
         {/* Tags */}
         <div className="flex flex-wrap gap-2 mb-4">
           {job.category && (
-            <span className="text-xs font-medium px-2.5 py-1"
-              style={{ background: T.coralLight, color: T.coral, borderRadius: 4 }}>
+            <span className="text-xs font-medium px-2.5 py-1 rounded-xs bg-terracotta-soft text-terracotta">
               {job.category.name}
             </span>
           )}
-          <span className="text-xs px-2.5 py-1 border"
-            style={{ borderColor: T.border, borderRadius: 4, color: T.textLight }}>
+          <span className="text-xs px-2.5 py-1 border border-line rounded-xs text-ink-3">
             {job.event_type}
           </span>
         </div>
@@ -390,18 +351,19 @@ function JobCard({ job, currentUser, isLiked }) {
             { icon: DollarSign,value: formatBudget(job.budget_min, job.budget_max, job.currency) },
             { icon: Users,     value: `${job.bids_count} bids so far` },
           ].map((meta, i) => (
-            <div key={i} className="flex items-center gap-2 p-2.5 border"
-              style={{ borderColor: T.border, borderRadius: 4, background: T.bg }}>
-              <meta.icon size={12} strokeWidth={1.5} style={{ color: T.textLight, flexShrink: 0 }} />
-              <span className="text-xs truncate" style={{ color: T.textMuted }}>{meta.value}</span>
+            <div key={i} className="flex items-center gap-2 p-2.5 border border-line rounded-xs bg-cream">
+              <meta.icon size={12} strokeWidth={1.5} className="text-ink-3 flex-shrink-0" />
+              <span className="text-xs truncate text-ink-2">{meta.value}</span>
             </div>
           ))}
         </div>
 
         <Link
           href={`/jobs/${job.id}`}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 text-white transition-opacity hover:opacity-90"
-          style={{ background: canBid ? T.coral : T.navy, borderRadius: 4 }}
+          className={`inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 text-white
+                      rounded-sm transition-colors ${
+            canBid ? 'bg-terracotta hover:bg-terracotta-deep' : 'bg-ink hover:opacity-90'
+          }`}
         >
           {canBid ? 'View & Bid' : 'View Job'} <ArrowRight size={12} />
         </Link>
@@ -413,7 +375,7 @@ function JobCard({ job, currentUser, isLiked }) {
         currentUser={currentUser}
         isLiked={isLiked}
         shareUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/jobs/${job.id}`}
-        shareText={`${job.title} — open for bids on Vogue Events`}
+        shareText={`${job.title} — open for bids on ${PRODUCT_NAME}`}
       />
     </div>
   )
@@ -422,8 +384,7 @@ function JobCard({ job, currentUser, isLiked }) {
 // ── Review Card ──
 function ReviewCard({ review, currentUser, isLiked }) {
   return (
-    <div className="bg-white border overflow-hidden"
-      style={{ borderColor: T.border, borderRadius: 4 }}>
+    <div className="bg-surface border border-line rounded-md overflow-hidden">
 
       <CardHeader
         avatarInitial={review.reviewer?.full_name?.charAt(0)}
@@ -432,8 +393,7 @@ function ReviewCard({ review, currentUser, isLiked }) {
         profileLink="#"
         subtitle={`Reviewed ${review.reviewee?.full_name}`}
         badge="Event Completed"
-        badgeBg="#F0FDF4"
-        badgeColor="#16A34A"
+        badgeClassName="bg-verified-bg text-verified"
         badgeIcon={CheckCircle}
         time={timeAgo(review.created_at)}
       />
@@ -441,10 +401,10 @@ function ReviewCard({ review, currentUser, isLiked }) {
       <div className="px-4 py-4">
         {/* Who was reviewed */}
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-sm" style={{ color: T.textMuted }}>
+          <span className="text-sm text-ink-2">
             Rating for{' '}
             <Link href={`/providers/${review.reviewee?.id}`}>
-              <span className="font-semibold hover:underline" style={{ color: T.coral }}>
+              <span className="font-semibold hover:underline text-terracotta">
                 {review.reviewee?.full_name}
               </span>
             </Link>
@@ -455,19 +415,18 @@ function ReviewCard({ review, currentUser, isLiked }) {
         <div className="flex items-center gap-1.5 mb-3">
           {[1,2,3,4,5].map(star => (
             <Star key={star} size={18} strokeWidth={1.5}
-              className={star <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-200'} />
+              className={star <= review.rating ? 'fill-ochre text-ochre' : 'text-line'} />
           ))}
-          <span className="text-sm font-bold ml-1" style={{ color: T.navy }}>
+          <span className="text-sm ml-1 t-money text-ink">
             {review.rating}.0 / 5
           </span>
         </div>
 
         {/* Job reference */}
         {review.hire?.job && (
-          <div className="flex items-center gap-2 mb-3 p-2.5 border"
-            style={{ borderColor: T.border, borderRadius: 4, background: T.bg }}>
-            <Award size={12} strokeWidth={1.5} style={{ color: T.textLight }} />
-            <span className="text-xs" style={{ color: T.textMuted }}>
+          <div className="flex items-center gap-2 mb-3 p-2.5 border border-line rounded-xs bg-cream">
+            <Award size={12} strokeWidth={1.5} className="text-ink-3" />
+            <span className="text-xs text-ink-2">
               {review.hire.job.event_type} — {review.hire.job.title}
             </span>
           </div>
@@ -475,10 +434,9 @@ function ReviewCard({ review, currentUser, isLiked }) {
 
         {/* Comment */}
         {review.comment && (
-          <div className="p-3 border-l-2 ml-1"
-            style={{ borderLeftColor: T.coral }}>
-            <p className="text-sm leading-relaxed italic" style={{ color: T.textMuted }}>
-              "{review.comment}"
+          <div className="p-3 border-l-2 ml-1 border-terracotta">
+            <p className="text-sm leading-relaxed italic text-ink-2">
+              &ldquo;{review.comment}&rdquo;
             </p>
           </div>
         )}
@@ -490,7 +448,7 @@ function ReviewCard({ review, currentUser, isLiked }) {
         currentUser={currentUser}
         isLiked={isLiked}
         shareUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/providers/${review.reviewee?.id}`}
-        shareText={`${review.reviewee?.full_name} got a ${review.rating}/5 review on Vogue Events`}
+        shareText={`${review.reviewee?.full_name} got a ${review.rating}/5 review on ${PRODUCT_NAME}`}
       />
     </div>
   )
@@ -499,8 +457,7 @@ function ReviewCard({ review, currentUser, isLiked }) {
 // ── Portfolio Card ──
 function PortfolioCard({ item, currentUser, isLiked, isSaved }) {
   return (
-    <div className="bg-white border overflow-hidden"
-      style={{ borderColor: T.border, borderRadius: 4 }}>
+    <div className="bg-surface border border-line rounded-md overflow-hidden">
 
       <CardHeader
         avatarInitial={item.provider?.full_name?.charAt(0)}
@@ -509,9 +466,8 @@ function PortfolioCard({ item, currentUser, isLiked, isSaved }) {
         profileLink={`/providers/${item.provider?.id}`}
         subtitle={item.event_type ? `${item.event_type} shoot` : 'Added to portfolio'}
         badge="Portfolio"
-        badgeBg={T.coralLight}
-        badgeColor={T.coral}
-        badgeIcon={Image}
+        badgeClassName="bg-terracotta-soft text-terracotta"
+        badgeIcon={ImageIcon}
         time={timeAgo(item.created_at)}
       />
 
@@ -521,6 +477,7 @@ function PortfolioCard({ item, currentUser, isLiked, isSaved }) {
           <img
             src={item.image_url}
             alt={item.title || 'Portfolio'}
+            loading="lazy"
             className="w-full object-cover"
             style={{ maxHeight: 400 }}
           />
@@ -529,14 +486,14 @@ function PortfolioCard({ item, currentUser, isLiked, isSaved }) {
 
       {/* Caption */}
       {(item.title || item.description) && (
-        <div className="px-4 py-3 border-b" style={{ borderColor: T.border }}>
+        <div className="px-4 py-3 border-b border-line">
           {item.title && (
-            <p className="text-sm font-semibold mb-0.5" style={{ color: T.navy }}>
+            <p className="text-sm font-semibold mb-0.5 text-ink">
               {item.title}
             </p>
           )}
           {item.description && (
-            <p className="text-xs leading-relaxed" style={{ color: T.textMuted }}>
+            <p className="text-xs leading-relaxed text-ink-2">
               {item.description}
             </p>
           )}
@@ -550,7 +507,7 @@ function PortfolioCard({ item, currentUser, isLiked, isSaved }) {
         isLiked={isLiked}
         isSaved={isSaved}
         shareUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/providers/${item.provider?.id}`}
-        shareText={`Check out this work by ${item.provider?.full_name} on Vogue Events`}
+        shareText={`Check out this work by ${item.provider?.full_name} on ${PRODUCT_NAME}`}
       />
     </div>
   )

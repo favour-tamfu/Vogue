@@ -3,24 +3,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { motion } from 'framer-motion'
 import Navbar from '@/components/layout/Navbar'
+import Agwo from '@/components/motifs/Agwo'
 import {
   Briefcase, MapPin, Calendar, DollarSign,
   Users, Clock, FileText, ChevronRight,
   CheckCircle, AlertCircle, ArrowLeft, ChevronDown
 } from 'lucide-react'
-
-const T = {
-  navy:       '#0F172A',
-  navyMid:    '#1E293B',
-  coral:      '#E8523A',
-  coralLight: '#FEF0ED',
-  border:     '#E2E8F0',
-  bg:         '#F8FAFC',
-  textMuted:  '#64748B',
-  textLight:  '#94A3B8',
-}
+import { DEFAULT_CURRENCY, symbolFor } from '@/lib/currency'
 
 const EVENT_TYPES = [
   'Wedding', 'Corporate Event', 'Birthday Party',
@@ -28,18 +18,19 @@ const EVENT_TYPES = [
   'Funeral / Memorial', 'Festival', 'Private Dinner', 'Other',
 ]
 
+// Nigeria first — NGN leads the list and is the default.
 const CURRENCIES = [
-  { code: 'USD', symbol: '$',  label: 'US Dollar'       },
-  { code: 'EUR', symbol: '€',  label: 'Euro'             },
-  { code: 'GBP', symbol: '£',  label: 'British Pound'   },
-  { code: 'NGN', symbol: '₦',  label: 'Nigerian Naira'  },
-  { code: 'GHS', symbol: 'GH₵',label: 'Ghanaian Cedi'   },
-  { code: 'KES', symbol: 'KSh',label: 'Kenyan Shilling' },
-  { code: 'ZAR', symbol: 'R',  label: 'South African Rand' },
+  { code: 'NGN', symbol: '₦',   label: 'Nigerian Naira'      },
+  { code: 'GHS', symbol: 'GH₵', label: 'Ghanaian Cedi'       },
+  { code: 'KES', symbol: 'KSh', label: 'Kenyan Shilling'     },
+  { code: 'ZAR', symbol: 'R',   label: 'South African Rand'  },
   { code: 'XAF', symbol: 'FCFA',label: 'Central African CFA' },
-  { code: 'XOF', symbol: 'CFA',label: 'West African CFA'  },
-  { code: 'CAD', symbol: 'CA$',label: 'Canadian Dollar'  },
-  { code: 'AUD', symbol: 'A$', label: 'Australian Dollar'},
+  { code: 'XOF', symbol: 'CFA', label: 'West African CFA'    },
+  { code: 'USD', symbol: '$',   label: 'US Dollar'           },
+  { code: 'GBP', symbol: '£',   label: 'British Pound'       },
+  { code: 'EUR', symbol: '€',   label: 'Euro'                },
+  { code: 'CAD', symbol: 'CA$', label: 'Canadian Dollar'     },
+  { code: 'AUD', symbol: 'A$',  label: 'Australian Dollar'   },
 ]
 
 const STEPS = [
@@ -77,7 +68,7 @@ export default function NewJobPage() {
     location:       '',
     budget_min:     '',
     budget_max:     '',
-    currency:       'USD',
+    currency:       DEFAULT_CURRENCY,
     headcount:      '',
     duration_hours: '',
   })
@@ -100,6 +91,9 @@ export default function NewJobPage() {
   const update = (field, value) => setForm(prev => ({ ...prev, [field]: value }))
 
   // Location search
+  // TODO(CLAUDE.md §8 P1): this calls Nominatim directly from the browser, which
+  // OSM's usage policy does not allow (no identifying User-Agent) and rate-limits
+  // hard. Move behind an API route with a proper User-Agent and caching.
   const searchLocation = (value) => {
     setLocationQuery(value)
     update('location', value)
@@ -143,6 +137,7 @@ export default function NewJobPage() {
   }
 
   const selectedCurrency = CURRENCIES.find(c => c.code === form.currency) || CURRENCIES[0]
+  const sym = symbolFor(form.currency)
 
   const handleSubmit = async () => {
     setLoading(true)
@@ -169,7 +164,7 @@ export default function NewJobPage() {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0" style={{ background: T.bg }}>
+    <div className="min-h-screen pb-20 md:pb-0 bg-cream">
       <Navbar profile={profile} />
 
       <main className="max-w-2xl mx-auto px-4 pt-20 pb-16">
@@ -177,17 +172,16 @@ export default function NewJobPage() {
         {/* Back */}
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-sm mb-6 transition-opacity hover:opacity-70"
-          style={{ color: T.textMuted }}
+          className="flex items-center gap-1.5 text-sm mb-6 transition-opacity hover:opacity-70 text-ink-2"
         >
           <ArrowLeft size={14} strokeWidth={1.5} /> Back
         </button>
 
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-xl font-semibold" style={{ color: T.navy }}>Post a Job</h1>
-          <p className="text-sm mt-1" style={{ color: T.textMuted }}>
-            The more specific you are, the better bids you'll receive.
+          <h1 className="t-h1 text-ink">Post a Job</h1>
+          <p className="text-sm mt-1 text-ink-2">
+            The more specific you are, the better bids you&apos;ll receive.
           </p>
         </div>
 
@@ -197,31 +191,32 @@ export default function NewJobPage() {
             <div key={s.id} className="flex items-center flex-1">
               <div className="flex flex-col items-center flex-1">
                 <div
-                  className="w-7 h-7 flex items-center justify-center text-xs font-bold border-2 transition-all"
-                  style={{
-                    borderRadius: 4,
-                    borderColor: step > s.id ? T.coral : step === s.id ? T.navy : T.border,
-                    background:  step > s.id ? T.coral : step === s.id ? T.navy : '#fff',
-                    color:       step >= s.id ? '#fff' : T.textLight,
-                  }}
+                  className={`w-7 h-7 flex items-center justify-center text-xs font-bold border-2
+                              rounded-xs transition-all ${
+                    step > s.id  ? 'border-terracotta bg-terracotta text-white'
+                  : step === s.id ? 'border-ink bg-ink text-white'
+                  :                 'border-line bg-surface text-ink-3'
+                  }`}
                 >
                   {step > s.id ? <CheckCircle size={13} /> : s.id}
                 </div>
-                <span className="text-xs mt-1 font-medium hidden sm:block"
-                  style={{ color: step === s.id ? T.navy : T.textLight }}>
+                <span className={`text-xs mt-1 font-medium hidden sm:block ${
+                  step === s.id ? 'text-ink' : 'text-ink-3'
+                }`}>
                   {s.label}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className="h-px flex-1 mx-1 mb-4 sm:mb-6"
-                  style={{ background: step > s.id ? T.coral : T.border }} />
+                <div className={`h-px flex-1 mx-1 mb-4 sm:mb-6 ${
+                  step > s.id ? 'bg-terracotta' : 'bg-line'
+                }`} />
               )}
             </div>
           ))}
         </div>
 
         {/* Form card */}
-        <div className="bg-white border" style={{ borderColor: T.border, borderRadius: 4 }}>
+        <div className="bg-surface border border-line rounded-md">
 
           {/* ── STEP 1 — Job Details ── */}
           {step === 1 && (
@@ -234,10 +229,8 @@ export default function NewJobPage() {
                   value={form.title}
                   onChange={e => update('title', e.target.value)}
                   placeholder="e.g. Photographer needed for wedding reception"
-                  className="w-full px-3 py-2.5 text-sm border outline-none"
-                  style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                  onFocus={e => e.target.style.borderColor = T.navy}
-                  onBlur={e => e.target.style.borderColor = T.border}
+                  className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none text-ink
+                             placeholder:text-ink-3 focus:border-terracotta transition-colors"
                 />
               </Field>
 
@@ -247,13 +240,11 @@ export default function NewJobPage() {
                     <button
                       key={type}
                       onClick={() => update('event_type', type)}
-                      className="px-3 py-2 text-xs font-medium text-left border transition-all"
-                      style={{
-                        borderRadius: 4,
-                        borderColor: form.event_type === type ? T.navy : T.border,
-                        background:  form.event_type === type ? T.navy : '#fff',
-                        color:       form.event_type === type ? '#fff' : T.textMuted,
-                      }}
+                      className={`px-3 py-2 text-xs font-medium text-left border rounded-xs transition-all ${
+                        form.event_type === type
+                          ? 'border-ink bg-ink text-white'
+                          : 'border-line bg-surface text-ink-2'
+                      }`}
                     >
                       {type}
                     </button>
@@ -267,13 +258,11 @@ export default function NewJobPage() {
                     <button
                       key={cat.id}
                       onClick={() => update('category_id', cat.id)}
-                      className="px-3 py-2 text-xs font-medium text-left border transition-all"
-                      style={{
-                        borderRadius: 4,
-                        borderColor: form.category_id === cat.id ? T.coral : T.border,
-                        background:  form.category_id === cat.id ? T.coralLight : '#fff',
-                        color:       form.category_id === cat.id ? T.coral : T.textMuted,
-                      }}
+                      className={`px-3 py-2 text-xs font-medium text-left border rounded-xs transition-all ${
+                        form.category_id === cat.id
+                          ? 'border-terracotta bg-terracotta-soft text-terracotta'
+                          : 'border-line bg-surface text-ink-2'
+                      }`}
                     >
                       {cat.name}
                     </button>
@@ -285,12 +274,10 @@ export default function NewJobPage() {
                 <textarea
                   value={form.description}
                   onChange={e => update('description', e.target.value)}
-                  placeholder="Include style preferences, equipment needed, dress code, special requirements..."
+                  placeholder="Include style preferences, equipment needed, dress code, special requirements…"
                   rows={4}
-                  className="w-full px-3 py-2.5 text-sm border outline-none resize-none"
-                  style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                  onFocus={e => e.target.style.borderColor = T.navy}
-                  onBlur={e => e.target.style.borderColor = T.border}
+                  className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none resize-none
+                             text-ink placeholder:text-ink-3 focus:border-terracotta transition-colors"
                 />
               </Field>
             </div>
@@ -307,10 +294,8 @@ export default function NewJobPage() {
                   value={form.event_date}
                   onChange={e => update('event_date', e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-3 py-2.5 text-sm border outline-none"
-                  style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                  onFocus={e => e.target.style.borderColor = T.navy}
-                  onBlur={e => e.target.style.borderColor = T.border}
+                  className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none text-ink
+                             focus:border-terracotta transition-colors"
                 />
               </Field>
 
@@ -319,10 +304,8 @@ export default function NewJobPage() {
                   type="time"
                   value={form.event_time}
                   onChange={e => update('event_time', e.target.value)}
-                  className="w-full px-3 py-2.5 text-sm border outline-none"
-                  style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                  onFocus={e => e.target.style.borderColor = T.navy}
-                  onBlur={e => e.target.style.borderColor = T.border}
+                  className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none text-ink
+                             focus:border-terracotta transition-colors"
                 />
               </Field>
 
@@ -335,38 +318,30 @@ export default function NewJobPage() {
                     onChange={e => searchLocation(e.target.value)}
                     placeholder="e.g. Victoria Island, Lagos"
                     autoComplete="off"
-                    className="w-full px-3 py-2.5 text-sm border outline-none"
-                    style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                    onFocus={e => { e.target.style.borderColor = T.navy; if (locationResults.length > 0) setShowLocationDrop(true) }}
-                    onBlur={e => e.target.style.borderColor = T.border}
+                    className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none text-ink
+                               placeholder:text-ink-3 focus:border-terracotta transition-colors"
+                    onFocus={() => { if (locationResults.length > 0) setShowLocationDrop(true) }}
                   />
 
                   {/* Spinner */}
                   {locationSearching && (
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      <motion.div
-                        className="w-4 h-4 border-2 border-t-transparent rounded-full"
-                        style={{ borderColor: T.coral }}
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                      />
+                      <Agwo size={16} className="text-terracotta" />
                     </div>
                   )}
 
                   {/* Dropdown */}
                   {showLocationDrop && locationResults.length > 0 && (
-                    <div
-                      className="absolute top-full left-0 right-0 mt-1 bg-white border overflow-hidden z-40"
-                      style={{ borderColor: T.border, borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
-                    >
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-line
+                                    rounded-xs overflow-hidden z-40 shadow-lg">
                       {locationResults.map((r, i) => (
                         <button
                           key={i}
                           onClick={() => selectLocation(r.label)}
-                          className="w-full text-left flex items-center gap-2.5 px-3 py-2.5 text-sm border-b last:border-0 transition-colors hover:bg-slate-50"
-                          style={{ borderColor: T.border, color: T.navyMid }}
+                          className="w-full text-left flex items-center gap-2.5 px-3 py-2.5 text-sm
+                                     border-b border-line last:border-0 text-ink-2 transition-colors hover:bg-cream"
                         >
-                          <MapPin size={12} strokeWidth={1.5} style={{ color: T.textLight, flexShrink: 0 }} />
+                          <MapPin size={12} strokeWidth={1.5} className="text-ink-3 flex-shrink-0" />
                           {r.label}
                         </button>
                       ))}
@@ -376,16 +351,13 @@ export default function NewJobPage() {
 
                 {/* Confirmed location pill */}
                 {form.location && !showLocationDrop && (
-                  <div
-                    className="flex items-center gap-2 mt-2 px-3 py-2 border"
-                    style={{ borderColor: T.coral, background: T.coralLight, borderRadius: 4 }}
-                  >
-                    <MapPin size={12} strokeWidth={1.5} style={{ color: T.coral }} />
-                    <span className="text-xs font-medium" style={{ color: T.coral }}>{form.location}</span>
+                  <div className="flex items-center gap-2 mt-2 px-3 py-2 border border-terracotta
+                                  rounded-xs bg-terracotta-soft">
+                    <MapPin size={12} strokeWidth={1.5} className="text-terracotta" />
+                    <span className="text-xs font-medium text-terracotta">{form.location}</span>
                     <button
                       onClick={() => { setLocationQuery(''); update('location', '') }}
-                      className="ml-auto text-xs hover:opacity-70"
-                      style={{ color: T.coral }}
+                      className="ml-auto text-xs hover:opacity-70 text-terracotta"
                     >
                       Change
                     </button>
@@ -401,10 +373,8 @@ export default function NewJobPage() {
                     onChange={e => update('headcount', e.target.value)}
                     placeholder="e.g. 150"
                     min="1"
-                    className="w-full px-3 py-2.5 text-sm border outline-none"
-                    style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                    onFocus={e => e.target.style.borderColor = T.navy}
-                    onBlur={e => e.target.style.borderColor = T.border}
+                    className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none text-ink
+                               placeholder:text-ink-3 focus:border-terracotta transition-colors"
                   />
                 </Field>
                 <Field label="Duration (hrs)" hint="Optional">
@@ -415,10 +385,8 @@ export default function NewJobPage() {
                     placeholder="e.g. 4"
                     min="1"
                     max="48"
-                    className="w-full px-3 py-2.5 text-sm border outline-none"
-                    style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                    onFocus={e => e.target.style.borderColor = T.navy}
-                    onBlur={e => e.target.style.borderColor = T.border}
+                    className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none text-ink
+                               placeholder:text-ink-3 focus:border-terracotta transition-colors"
                   />
                 </Field>
               </div>
@@ -430,8 +398,8 @@ export default function NewJobPage() {
             <div className="p-5 sm:p-6 space-y-5">
               <SectionHeader icon={DollarSign} title="What's your budget?" />
 
-              <div className="p-4 border" style={{ borderColor: T.border, borderRadius: 4, background: T.bg }}>
-                <p className="text-xs" style={{ color: T.textMuted }}>
+              <div className="p-4 border border-line rounded-xs bg-cream">
+                <p className="text-xs text-ink-2">
                   A clear budget range attracts better bids and saves time. Providers will see this before bidding.
                 </p>
               </div>
@@ -441,11 +409,11 @@ export default function NewJobPage() {
                 <div className="relative">
                   <button
                     onClick={() => setCurrencyOpen(!currencyOpen)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 border text-sm transition-colors hover:bg-slate-50"
-                    style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 border border-line
+                               rounded-xs text-sm text-ink transition-colors hover:bg-cream"
                   >
                     <span className="flex items-center gap-2">
-                      <span className="font-semibold" style={{ color: T.coral }}>
+                      <span className="font-semibold text-terracotta">
                         {selectedCurrency.symbol}
                       </span>
                       <span>{selectedCurrency.code} — {selectedCurrency.label}</span>
@@ -453,31 +421,29 @@ export default function NewJobPage() {
                     <ChevronDown
                       size={14}
                       strokeWidth={1.5}
-                      style={{ color: T.textLight, transform: currencyOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
+                      className="text-ink-3 transition-transform"
+                      style={{ transform: currencyOpen ? 'rotate(180deg)' : 'none' }}
                     />
                   </button>
 
                   {currencyOpen && (
-                    <div
-                      className="absolute top-full left-0 right-0 mt-1 bg-white border overflow-hidden z-40 max-h-52 overflow-y-auto"
-                      style={{ borderColor: T.border, borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
-                    >
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-line
+                                    rounded-xs overflow-hidden z-40 max-h-52 overflow-y-auto shadow-lg">
                       {CURRENCIES.map(cur => (
                         <button
                           key={cur.code}
                           onClick={() => { update('currency', cur.code); setCurrencyOpen(false) }}
-                          className="w-full text-left flex items-center gap-3 px-3 py-2.5 text-sm border-b last:border-0 transition-colors hover:bg-slate-50"
-                          style={{
-                            borderColor: T.border,
-                            background: form.currency === cur.code ? T.coralLight : '#fff',
-                            color: T.navyMid,
-                          }}
+                          className={`w-full text-left flex items-center gap-3 px-3 py-2.5 text-sm
+                                      border-b border-line last:border-0 text-ink-2 transition-colors
+                                      hover:bg-cream ${
+                            form.currency === cur.code ? 'bg-terracotta-soft' : 'bg-surface'
+                          }`}
                         >
-                          <span className="font-semibold w-8" style={{ color: T.coral }}>{cur.symbol}</span>
+                          <span className="font-semibold w-8 text-terracotta">{cur.symbol}</span>
                           <span>{cur.code}</span>
-                          <span style={{ color: T.textLight }}>— {cur.label}</span>
+                          <span className="text-ink-3">— {cur.label}</span>
                           {form.currency === cur.code && (
-                            <CheckCircle size={13} className="ml-auto" style={{ color: T.coral }} />
+                            <CheckCircle size={13} className="ml-auto text-terracotta" />
                           )}
                         </button>
                       ))}
@@ -490,9 +456,8 @@ export default function NewJobPage() {
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Minimum Budget" hint="Optional">
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold"
-                      style={{ color: T.textLight }}>
-                      {selectedCurrency.symbol}
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-3">
+                      {sym}
                     </span>
                     <input
                       type="number"
@@ -500,29 +465,24 @@ export default function NewJobPage() {
                       onChange={e => update('budget_min', e.target.value)}
                       placeholder="0"
                       min="0"
-                      className="w-full pl-8 pr-3 py-2.5 text-sm border outline-none"
-                      style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                      onFocus={e => e.target.style.borderColor = T.navy}
-                      onBlur={e => e.target.style.borderColor = T.border}
+                      className="w-full pl-8 pr-3 py-2.5 text-sm border border-line rounded-xs outline-none
+                                 text-ink placeholder:text-ink-3 focus:border-terracotta transition-colors"
                     />
                   </div>
                 </Field>
                 <Field label="Maximum Budget" required>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold"
-                      style={{ color: T.textLight }}>
-                      {selectedCurrency.symbol}
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-3">
+                      {sym}
                     </span>
                     <input
                       type="number"
                       value={form.budget_max}
                       onChange={e => update('budget_max', e.target.value)}
-                      placeholder="500"
+                      placeholder="250000"
                       min="1"
-                      className="w-full pl-8 pr-3 py-2.5 text-sm border outline-none"
-                      style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-                      onFocus={e => e.target.style.borderColor = T.navy}
-                      onBlur={e => e.target.style.borderColor = T.border}
+                      className="w-full pl-8 pr-3 py-2.5 text-sm border border-line rounded-xs outline-none
+                                 text-ink placeholder:text-ink-3 focus:border-terracotta transition-colors"
                     />
                   </div>
                 </Field>
@@ -530,19 +490,16 @@ export default function NewJobPage() {
 
               {/* Budget preview */}
               {form.budget_max && (
-                <div
-                  className="p-4 border"
-                  style={{ borderColor: T.coral, background: T.coralLight, borderRadius: 4 }}
-                >
-                  <p className="text-sm font-semibold" style={{ color: T.coral }}>
+                <div className="p-4 border border-terracotta rounded-xs bg-terracotta-soft">
+                  <p className="text-sm font-semibold t-money text-terracotta">
                     Budget:{' '}
                     {form.budget_min
-                      ? `${selectedCurrency.symbol}${parseInt(form.budget_min).toLocaleString()} — ${selectedCurrency.symbol}${parseInt(form.budget_max).toLocaleString()}`
-                      : `Up to ${selectedCurrency.symbol}${parseInt(form.budget_max).toLocaleString()}`
+                      ? `${sym}${parseInt(form.budget_min).toLocaleString()} — ${sym}${parseInt(form.budget_max).toLocaleString()}`
+                      : `Up to ${sym}${parseInt(form.budget_max).toLocaleString()}`
                     }
                     {' '}{form.currency}
                   </p>
-                  <p className="text-xs mt-0.5" style={{ color: T.textMuted }}>
+                  <p className="text-xs mt-0.5 text-ink-2">
                     This is what providers will see when browsing your job
                   </p>
                 </div>
@@ -562,36 +519,33 @@ export default function NewJobPage() {
                   { icon: Briefcase,  label: 'Service Needed',  value: categories.find(c => c.id === form.category_id)?.name || '—' },
                   { icon: Calendar,   label: 'Event Date',      value: form.event_date ? new Date(form.event_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—' },
                   { icon: MapPin,     label: 'Location',        value: form.location },
-                  { icon: DollarSign, label: 'Budget',          value: form.budget_min ? `${selectedCurrency.symbol}${parseInt(form.budget_min).toLocaleString()} — ${selectedCurrency.symbol}${parseInt(form.budget_max).toLocaleString()} ${form.currency}` : `Up to ${selectedCurrency.symbol}${parseInt(form.budget_max).toLocaleString()} ${form.currency}` },
+                  { icon: DollarSign, label: 'Budget',          value: form.budget_min ? `${sym}${parseInt(form.budget_min).toLocaleString()} — ${sym}${parseInt(form.budget_max).toLocaleString()} ${form.currency}` : `Up to ${sym}${parseInt(form.budget_max).toLocaleString()} ${form.currency}` },
                   form.headcount     && { icon: Users,  label: 'Guests',   value: `~${form.headcount} people` },
                   form.duration_hours && { icon: Clock, label: 'Duration', value: `${form.duration_hours} hours` },
                 ].filter(Boolean).map(item => (
                   <div
                     key={item.label}
-                    className="flex items-start gap-3 px-4 py-3 border"
-                    style={{ borderColor: T.border, borderRadius: 4, background: T.bg }}
+                    className="flex items-start gap-3 px-4 py-3 border border-line rounded-xs bg-cream"
                   >
-                    <item.icon size={13} strokeWidth={1.5} style={{ color: T.textLight, flexShrink: 0, marginTop: 2 }} />
+                    <item.icon size={13} strokeWidth={1.5} className="text-ink-3 flex-shrink-0 mt-0.5" />
                     <div>
-                      <span className="text-xs" style={{ color: T.textLight }}>{item.label}</span>
-                      <p className="text-sm font-medium mt-0.5" style={{ color: T.navy }}>{item.value}</p>
+                      <span className="text-xs text-ink-3">{item.label}</span>
+                      <p className="text-sm font-medium mt-0.5 text-ink">{item.value}</p>
                     </div>
                   </div>
                 ))}
 
                 {form.description && (
-                  <div className="px-4 py-3 border" style={{ borderColor: T.border, borderRadius: 4, background: T.bg }}>
-                    <span className="text-xs" style={{ color: T.textLight }}>Description</span>
-                    <p className="text-sm mt-0.5 leading-relaxed" style={{ color: T.textMuted }}>{form.description}</p>
+                  <div className="px-4 py-3 border border-line rounded-xs bg-cream">
+                    <span className="text-xs text-ink-3">Description</span>
+                    <p className="text-sm mt-0.5 leading-relaxed text-ink-2">{form.description}</p>
                   </div>
                 )}
               </div>
 
               {error && (
-                <div
-                  className="flex items-center gap-2 p-3 border text-sm"
-                  style={{ borderColor: '#FECACA', background: '#FFF5F5', borderRadius: 4, color: '#DC2626' }}
-                >
+                <div className="flex items-center gap-2 p-3 border border-line rounded-xs text-sm
+                                bg-danger-bg text-danger">
                   <AlertCircle size={14} strokeWidth={1.5} /> {error}
                 </div>
               )}
@@ -599,17 +553,12 @@ export default function NewJobPage() {
           )}
 
           {/* Nav buttons */}
-          <div
-            className="flex items-center justify-between px-5 sm:px-6 py-4 border-t"
-            style={{ borderColor: T.border }}
-          >
+          <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-t border-line">
             <button
               onClick={() => setStep(s => s - 1)}
-              className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 border transition-colors hover:bg-slate-50"
-              style={{
-                borderColor: T.border, borderRadius: 4, color: T.textMuted,
-                visibility: step === 1 ? 'hidden' : 'visible'
-              }}
+              className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 border border-line
+                         rounded-sm text-ink-2 transition-colors hover:bg-cream"
+              style={{ visibility: step === 1 ? 'hidden' : 'visible' }}
             >
               <ArrowLeft size={14} /> Back
             </button>
@@ -618,8 +567,10 @@ export default function NewJobPage() {
               <button
                 onClick={() => setStep(s => s + 1)}
                 disabled={!canProceed()}
-                className="flex items-center gap-1.5 text-sm font-semibold px-5 py-2 text-white transition-opacity"
-                style={{ background: canProceed() ? T.navy : T.border, borderRadius: 4 }}
+                className={`flex items-center gap-1.5 text-sm font-semibold px-5 py-2 text-white
+                            rounded-sm transition-colors ${
+                  canProceed() ? 'bg-ink hover:opacity-90' : 'bg-line cursor-not-allowed'
+                }`}
               >
                 Continue <ChevronRight size={14} />
               </button>
@@ -627,10 +578,11 @@ export default function NewJobPage() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center gap-1.5 text-sm font-semibold px-6 py-2 text-white transition-opacity hover:opacity-90"
-                style={{ background: T.coral, borderRadius: 4 }}
+                className="flex items-center gap-2 text-sm font-semibold px-6 py-2 text-white rounded-sm
+                           bg-terracotta transition-colors hover:bg-terracotta-deep disabled:opacity-50"
               >
-                {loading ? 'Posting...' : 'Post Job'}
+                {loading && <Agwo size={14} className="text-white" />}
+                {loading ? 'Posting…' : 'Post Job'}
               </button>
             )}
           </div>
@@ -643,9 +595,9 @@ export default function NewJobPage() {
 
 function SectionHeader({ icon: Icon, title }) {
   return (
-    <div className="flex items-center gap-2 pb-4 border-b" style={{ borderColor: T.border }}>
-      <Icon size={14} strokeWidth={1.5} style={{ color: T.textLight }} />
-      <h2 className="text-sm font-semibold" style={{ color: T.navy }}>{title}</h2>
+    <div className="flex items-center gap-2 pb-4 border-b border-line">
+      <Icon size={14} strokeWidth={1.5} className="text-ink-3" />
+      <h2 className="t-h3 text-ink">{title}</h2>
     </div>
   )
 }
@@ -654,9 +606,9 @@ function Field({ label, required, hint, children }) {
   return (
     <div>
       <div className="flex items-baseline gap-1 mb-1.5">
-        <label className="text-xs font-semibold" style={{ color: T.navyMid }}>{label}</label>
-        {required && <span className="text-xs" style={{ color: T.coral }}>*</span>}
-        {hint && <span className="text-xs" style={{ color: T.textLight }}>— {hint}</span>}
+        <label className="t-label text-ink-2">{label}</label>
+        {required && <span className="text-xs text-terracotta">*</span>}
+        {hint && <span className="text-xs text-ink-3">— {hint}</span>}
       </div>
       {children}
     </div>

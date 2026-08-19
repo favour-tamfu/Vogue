@@ -7,30 +7,14 @@ import {
   MapPin, Calendar, DollarSign, Users, Clock,
   ChevronLeft, CheckCircle, Star, Shield,
   AlertCircle, Send, ArrowRight, Briefcase,
-  User, Award, MessageSquare
+  Award
 } from 'lucide-react'
-
-const T = {
-  navy:       '#0F172A',
-  navyMid:    '#1E293B',
-  coral:      '#E8523A',
-  coralLight: '#FEF0ED',
-  border:     '#E2E8F0',
-  bg:         '#F8FAFC',
-  textMuted:  '#64748B',
-  textLight:  '#94A3B8',
-}
-
-function formatBudget(min, max, currency) {
-  const symbols = {
-    USD: '$', EUR: '€', GBP: '£', NGN: '₦',
-    GHS: 'GH₵', KES: 'KSh', ZAR: 'R',
-    XAF: 'FCFA', XOF: 'CFA', CAD: 'CA$', AUD: 'A$'
-  }
-  const sym = symbols[currency] || (currency || '$')
-  if (min) return `${sym}${Number(min).toLocaleString()} – ${sym}${Number(max).toLocaleString()}`
-  return `Up to ${sym}${Number(max).toLocaleString()}`
-}
+import VerifiedBadge from '@/components/ui/VerifiedBadge'
+import ConfirmModal from '@/components/ui/ConfirmModal'
+import Agwo from '@/components/motifs/Agwo'
+import Isi from '@/components/motifs/Isi'
+import { formatBudget, formatMoney, symbolFor } from '@/lib/currency'
+import { PRODUCT_NAME } from '@/lib/brand'
 
 function timeAgo(dateStr) {
   const diff  = Date.now() - new Date(dateStr).getTime()
@@ -42,20 +26,20 @@ function timeAgo(dateStr) {
   return `${days}d ago`
 }
 
+const STATUS_CONFIG = {
+  open:      { className: 'bg-terracotta-soft text-terracotta', label: 'Open for Bids' },
+  hired:     { className: 'bg-verified-bg text-verified',       label: 'Hired'         },
+  closed:    { className: 'bg-cream-2 text-ink-3',              label: 'Closed'        },
+  cancelled: { className: 'bg-danger-bg text-danger',           label: 'Cancelled'     },
+}
+
 export default function JobDetail({ job, bids, myBid, hire, profile, justPosted }) {
-  const router = useRouter()
   const isHirer    = profile?.id === job.hirer_id
   const isProvider = profile?.role === 'provider' || profile?.role === 'both'
   const isVerified = profile?.is_verified
   const isLoggedIn = !!profile
 
-  const statusColors = {
-    open:      { bg: '#F0FDF4', color: '#16A34A', label: 'Open for Bids' },
-    hired:     { bg: '#EFF6FF', color: '#2563EB', label: 'Hired'         },
-    closed:    { bg: T.bg,      color: T.textLight, label: 'Closed'      },
-    cancelled: { bg: '#FFF5F5', color: '#DC2626',  label: 'Cancelled'    },
-  }
-  const status = statusColors[job.status] || statusColors.open
+  const status = STATUS_CONFIG[job.status] || STATUS_CONFIG.open
 
   return (
     <div>
@@ -63,20 +47,16 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
       {/* Back link */}
       <Link
         href="/jobs"
-        className="inline-flex items-center gap-1.5 text-sm mb-6 transition-opacity hover:opacity-70"
-        style={{ color: T.textMuted }}
+        className="inline-flex items-center gap-1.5 text-sm mb-6 transition-opacity hover:opacity-70 text-ink-2"
       >
         <ChevronLeft size={14} strokeWidth={1.5} /> Back to Job Board
       </Link>
 
       {/* Just posted banner */}
       {justPosted && (
-        <div
-          className="flex items-center gap-3 px-4 py-3 border mb-5"
-          style={{ background: '#F0FDF4', borderColor: '#86EFAC', borderRadius: 4 }}
-        >
-          <CheckCircle size={15} strokeWidth={1.5} className="text-green-500 flex-shrink-0" />
-          <p className="text-sm font-medium text-green-800">
+        <div className="flex items-center gap-3 px-4 py-3 border border-line rounded-xs mb-5 bg-verified-bg">
+          <CheckCircle size={15} strokeWidth={1.5} className="text-verified flex-shrink-0" />
+          <p className="text-sm font-medium text-verified">
             Your job has been posted successfully — providers can now bid on it.
           </p>
         </div>
@@ -88,31 +68,25 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
         <div className="lg:col-span-2 space-y-4">
 
           {/* Job header card */}
-          <div className="bg-white border p-5 sm:p-6"
-            style={{ borderColor: T.border, borderRadius: 4 }}>
+          <div className="bg-surface border border-line rounded-md p-5 sm:p-6">
 
             {/* Top row — badges + status */}
             <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
               <div className="flex items-center gap-2 flex-wrap">
                 {job.category && (
-                  <span className="text-xs font-medium px-2 py-0.5"
-                    style={{ background: T.coralLight, color: T.coral, borderRadius: 4 }}>
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-xs bg-terracotta-soft text-terracotta">
                     {job.category.name}
                   </span>
                 )}
-                <span className="text-xs px-2 py-0.5 border"
-                  style={{ borderColor: T.border, borderRadius: 4, color: T.textLight }}>
+                <span className="text-xs px-2 py-0.5 border border-line rounded-xs text-ink-3">
                   {job.event_type}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span
-                  className="text-xs font-semibold px-2.5 py-1"
-                  style={{ background: status.bg, color: status.color, borderRadius: 4 }}
-                >
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-xs ${status.className}`}>
                   {status.label}
                 </span>
-                <span className="flex items-center gap-1 text-xs" style={{ color: T.textLight }}>
+                <span className="flex items-center gap-1 text-xs text-ink-3">
                   <Clock size={10} strokeWidth={1.5} />
                   {timeAgo(job.created_at)}
                 </span>
@@ -120,7 +94,7 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
             </div>
 
             {/* Title */}
-            <h1 className="text-xl font-bold mb-4" style={{ color: T.navy }}>
+            <h1 className="t-h1 mb-4 text-ink">
               {job.title}
             </h1>
 
@@ -152,14 +126,13 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
               ].map(item => (
                 <div
                   key={item.label}
-                  className="flex flex-col gap-1 p-3 border"
-                  style={{ borderColor: T.border, borderRadius: 4, background: T.bg }}
+                  className="flex flex-col gap-1 p-3 border border-line rounded-xs bg-cream"
                 >
                   <div className="flex items-center gap-1.5">
-                    <item.icon size={12} strokeWidth={1.5} style={{ color: T.textLight }} />
-                    <span className="text-xs" style={{ color: T.textLight }}>{item.label}</span>
+                    <item.icon size={12} strokeWidth={1.5} className="text-ink-3" />
+                    <span className="text-xs text-ink-3">{item.label}</span>
                   </div>
-                  <span className="text-sm font-semibold" style={{ color: T.navy }}>
+                  <span className="text-sm font-semibold text-ink">
                     {item.value}
                   </span>
                 </div>
@@ -170,20 +143,20 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
             {(job.headcount || job.duration_hours || job.event_time) && (
               <div className="flex items-center gap-4 mb-5 flex-wrap">
                 {job.event_time && (
-                  <span className="flex items-center gap-1.5 text-sm" style={{ color: T.textMuted }}>
-                    <Clock size={13} strokeWidth={1.5} style={{ color: T.textLight }} />
+                  <span className="flex items-center gap-1.5 text-sm text-ink-2">
+                    <Clock size={13} strokeWidth={1.5} className="text-ink-3" />
                     Starts at {job.event_time}
                   </span>
                 )}
                 {job.headcount && (
-                  <span className="flex items-center gap-1.5 text-sm" style={{ color: T.textMuted }}>
-                    <Users size={13} strokeWidth={1.5} style={{ color: T.textLight }} />
+                  <span className="flex items-center gap-1.5 text-sm text-ink-2">
+                    <Users size={13} strokeWidth={1.5} className="text-ink-3" />
                     ~{job.headcount} guests expected
                   </span>
                 )}
                 {job.duration_hours && (
-                  <span className="flex items-center gap-1.5 text-sm" style={{ color: T.textMuted }}>
-                    <Clock size={13} strokeWidth={1.5} style={{ color: T.textLight }} />
+                  <span className="flex items-center gap-1.5 text-sm text-ink-2">
+                    <Clock size={13} strokeWidth={1.5} className="text-ink-3" />
                     {job.duration_hours} hours
                   </span>
                 )}
@@ -193,12 +166,10 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
             {/* Description */}
             {job.description && (
               <div>
-                <p className="text-xs font-semibold tracking-widest uppercase mb-2"
-                  style={{ color: T.textLight }}>
+                <p className="t-micro mb-2 text-ink-3">
                   Job Description
                 </p>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap"
-                  style={{ color: T.textMuted }}>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap text-ink-2">
                   {job.description}
                 </p>
               </div>
@@ -213,28 +184,25 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
               isVerified={isVerified}
             />
           )}
-      
-            {/* ── MESSAGE HIRER (provider who has bid) ── */}
-            {isProvider && !isHirer && myBid && (
-            <div
-                className="bg-white border p-4 flex items-center justify-between gap-4"
-                style={{ borderColor: T.border, borderRadius: 4 }}
-                >
-                <div>
-                <p className="text-sm font-semibold" style={{ color: T.navy }}>
-                    Message the hirer
+
+          {/* ── MESSAGE HIRER (provider who has bid) ── */}
+          {isProvider && !isHirer && myBid && (
+            <div className="bg-surface border border-line rounded-md p-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="t-h3 text-ink">
+                  Message the hirer
                 </p>
-                <p className="text-xs mt-0.5" style={{ color: T.textMuted }}>
-                    Discuss the details directly with {job.hirer?.full_name?.split(' ')[0]}
+                <p className="text-xs mt-0.5 text-ink-2">
+                  Discuss the details directly with {job.hirer?.full_name?.split(' ')[0]}
                 </p>
-                </div>
-                <MessageButton
+              </div>
+              <MessageButton
                 jobId={job.id}
                 hirerId={job.hirer_id}
                 providerId={profile.id}
-                />
+              />
             </div>
-            )}
+          )}
 
           {/* ── BIDS LIST (hirer only) ── */}
           {isHirer && bids.length > 0 && (
@@ -247,15 +215,13 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
 
           {/* ── HIRED CONFIRMATION ── */}
           {hire && (
-            <div
-              className="flex items-start gap-3 p-4 border"
-              style={{ background: '#EFF6FF', borderColor: '#BFDBFE', borderRadius: 4 }}
-            >
-              <CheckCircle size={16} strokeWidth={1.5} className="text-blue-500 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-4 p-5 border border-line rounded-md bg-verified-bg">
+              <Isi size={44} className="text-verified flex-shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-blue-900">Provider hired</p>
-                <p className="text-xs text-blue-700 mt-0.5">
-                  This job has been filled. Payment and final details should be coordinated directly.
+                <p className="t-h3 text-verified">Provider hired</p>
+                <p className="text-xs text-verified mt-1 leading-relaxed">
+                  This job has been filled. Agree your payment terms in the conversation —
+                  {' '}{PRODUCT_NAME} records payments but does not hold or transfer funds.
                 </p>
               </div>
             </div>
@@ -263,22 +229,19 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
 
           {/* Guest CTA */}
           {!isLoggedIn && (
-            <div
-              className="border p-5 text-center"
-              style={{ background: T.navy, borderColor: T.navy, borderRadius: 4 }}
-            >
+            <div className="border border-ink rounded-md p-5 text-center bg-ink">
               <p className="text-sm font-semibold text-white mb-1">
                 Interested in this job?
               </p>
-              <p className="text-xs mb-4" style={{ color: T.textLight }}>
+              <p className="text-xs mb-4 text-ink-3">
                 Create a free provider account to place a bid.
               </p>
               <Link
                 href="/signup"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-white px-5 py-2"
-                style={{ background: T.coral, borderRadius: 4 }}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-white px-5 py-2
+                           rounded-sm bg-terracotta transition-colors hover:bg-terracotta-deep"
               >
-                Sign Up & Bid <ArrowRight size={13} />
+                Sign Up &amp; Bid <ArrowRight size={13} />
               </Link>
             </div>
           )}
@@ -289,30 +252,26 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
         <div className="space-y-4">
 
           {/* Hirer profile */}
-          <div className="bg-white border p-4"
-            style={{ borderColor: T.border, borderRadius: 4 }}>
-            <p className="text-xs font-semibold tracking-widest uppercase mb-3"
-              style={{ color: T.textLight }}>
+          <div className="bg-surface border border-line rounded-md p-4">
+            <p className="t-micro mb-3 text-ink-3">
               Posted By
             </p>
             <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-                style={{ background: T.navy, borderRadius: 4 }}
-              >
+              <div className="w-10 h-10 flex items-center justify-center text-white font-bold text-sm
+                              flex-shrink-0 bg-ink rounded-xs">
                 {job.hirer?.full_name?.charAt(0) || '?'}
               </div>
               <div className="min-w-0">
-                <div className="text-sm font-semibold truncate" style={{ color: T.navy }}>
+                <div className="text-sm font-semibold truncate text-ink">
                   {job.hirer?.full_name}
                 </div>
-                <div className="text-xs capitalize mt-0.5" style={{ color: T.textLight }}>
+                <div className="text-xs capitalize mt-0.5 text-ink-3">
                   {job.hirer?.org_type || 'Hirer'}
                 </div>
                 {job.hirer?.location && (
                   <div className="flex items-center gap-1 mt-0.5">
-                    <MapPin size={10} strokeWidth={1.5} style={{ color: T.textLight }} />
-                    <span className="text-xs" style={{ color: T.textLight }}>
+                    <MapPin size={10} strokeWidth={1.5} className="text-ink-3" />
+                    <span className="text-xs text-ink-3">
                       {job.hirer.location}
                     </span>
                   </div>
@@ -321,30 +280,25 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
             </div>
 
             {/* Hirer stats */}
-            <div className="grid grid-cols-2 gap-2 pt-3 border-t"
-              style={{ borderColor: T.border }}>
-              <div className="text-center p-2 border"
-                style={{ borderColor: T.border, borderRadius: 4, background: T.bg }}>
-                <div className="text-lg font-bold" style={{ color: T.navy }}>
+            <div className="grid grid-cols-2 gap-2 pt-3 border-t border-line">
+              <div className="text-center p-2 border border-line rounded-xs bg-cream">
+                <div className="text-lg t-money text-ink">
                   {job.hirer?.completed_events || 0}
                 </div>
-                <div className="text-xs" style={{ color: T.textLight }}>Events</div>
+                <div className="text-xs text-ink-3">Events</div>
               </div>
-              <div className="text-center p-2 border"
-                style={{ borderColor: T.border, borderRadius: 4, background: T.bg }}>
-                <div className="text-lg font-bold" style={{ color: T.navy }}>
+              <div className="text-center p-2 border border-line rounded-xs bg-cream">
+                <div className="text-lg t-money text-ink">
                   {job.hirer?.average_rating || '—'}
                 </div>
-                <div className="text-xs" style={{ color: T.textLight }}>Avg. Rating</div>
+                <div className="text-xs text-ink-3">Avg. Rating</div>
               </div>
             </div>
           </div>
 
           {/* Job summary */}
-          <div className="bg-white border p-4"
-            style={{ borderColor: T.border, borderRadius: 4 }}>
-            <p className="text-xs font-semibold tracking-widest uppercase mb-3"
-              style={{ color: T.textLight }}>
+          <div className="bg-surface border border-line rounded-md p-4">
+            <p className="t-micro mb-3 text-ink-3">
               Summary
             </p>
             <div className="space-y-2.5">
@@ -355,35 +309,20 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
                 { icon: DollarSign,label: 'Budget',  value: formatBudget(job.budget_min, job.budget_max, job.currency) },
               ].map(item => (
                 <div key={item.label} className="flex items-start gap-2.5">
-                  <item.icon size={13} strokeWidth={1.5} style={{ color: T.textLight, flexShrink: 0, marginTop: 1 }} />
+                  <item.icon size={13} strokeWidth={1.5} className="text-ink-3 flex-shrink-0 mt-0.5" />
                   <div className="min-w-0">
-                    <span className="text-xs block" style={{ color: T.textLight }}>{item.label}</span>
-                    <span className="text-xs font-medium" style={{ color: T.navyMid }}>{item.value}</span>
+                    <span className="text-xs block text-ink-3">{item.label}</span>
+                    <span className="text-xs font-medium text-ink-2">{item.value}</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Share / other actions */}
-          {isHirer && (
-            <div className="bg-white border p-4"
-              style={{ borderColor: T.border, borderRadius: 4 }}>
-              <p className="text-xs font-semibold tracking-widest uppercase mb-3"
-                style={{ color: T.textLight }}>
-                Manage Job
-              </p>
-              <div className="space-y-2">
-                <Link
-                  href={`/jobs/${job.id}/edit`}
-                  className="w-full flex items-center justify-center text-xs font-medium py-2 border transition-colors hover:bg-slate-50"
-                  style={{ borderColor: T.border, borderRadius: 4, color: T.textMuted }}
-                >
-                  Edit Job
-                </Link>
-              </div>
-            </div>
-          )}
+          {/* NOTE: the "Manage Job" card previously linked to /jobs/[id]/edit,
+              which does not exist and 404s (CLAUDE.md §8 P1). Removed rather than
+              shipping a dead link; restore it when the edit route is built along
+              with close / cancel / delete. */}
 
         </div>
       </div>
@@ -406,7 +345,7 @@ function MessageButton({ jobId, hirerId, providerId }) {
       })
       const data = await res.json()
       if (res.ok) router.push(`/messages/${data.conversation.id}`)
-    } catch { }
+    } catch { /* surfaced by the disabled state resetting */ }
     setLoading(false)
   }
 
@@ -414,10 +353,11 @@ function MessageButton({ jobId, hirerId, providerId }) {
     <button
       onClick={handleMessage}
       disabled={loading}
-      className="text-xs font-medium px-4 py-1.5 border transition-colors hover:bg-slate-50 disabled:opacity-50"
-      style={{ borderColor: T.border, borderRadius: 4, color: T.textMuted }}
+      className="flex items-center gap-1.5 text-xs font-medium px-4 py-1.5 border border-line rounded-sm
+                 text-ink-2 transition-colors hover:bg-cream disabled:opacity-50"
     >
-      {loading ? '...' : 'Message'}
+      {loading && <Agwo size={11} className="text-ink-2" />}
+      {loading ? 'Opening…' : 'Message'}
     </button>
   )
 }
@@ -431,81 +371,7 @@ function BidForm({ job, myBid, isVerified }) {
   const [error, setError]     = useState(null)
   const [success, setSuccess] = useState(false)
 
-  const symbols = {
-    USD: '$', EUR: '€', GBP: '£', NGN: '₦',
-    GHS: 'GH₵', KES: 'KSh', ZAR: 'R',
-    XAF: 'FCFA', XOF: 'CFA', CAD: 'CA$', AUD: 'A$'
-  }
-  const sym = symbols[job.currency] || '$'
-
-  if (!isVerified) {
-    return (
-      <div
-        className="border p-5"
-        style={{ borderColor: '#FDE68A', background: '#FFFBEB', borderRadius: 4 }}
-      >
-        <div className="flex items-start gap-3">
-          <AlertCircle size={15} strokeWidth={1.5} className="text-amber-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold" style={{ color: T.navy }}>
-              Verification required to bid
-            </p>
-            <p className="text-xs mt-0.5 mb-3" style={{ color: T.textMuted }}>
-              Complete your profile verification to place bids on jobs.
-            </p>
-            <Link
-              href="/verification/apply"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-1.5 text-white"
-              style={{ background: T.coral, borderRadius: 4 }}
-            >
-              <Shield size={12} /> Start Verification
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (myBid) {
-    return (
-      <div
-        className="border p-5"
-        style={{ borderColor: '#BFDBFE', background: '#EFF6FF', borderRadius: 4 }}
-      >
-        <div className="flex items-start gap-3">
-          <CheckCircle size={15} strokeWidth={1.5} className="text-blue-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-blue-900">
-              Your bid of {sym}{Number(myBid.amount).toLocaleString()} has been submitted
-            </p>
-            <p className="text-xs text-blue-700 mt-0.5">
-              Status: <span className="font-medium capitalize">{myBid.status}</span> — 
-              you'll be notified when the hirer makes a decision.
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (success) {
-    return (
-      <div
-        className="border p-5"
-        style={{ borderColor: '#86EFAC', background: '#F0FDF4', borderRadius: 4 }}
-      >
-        <div className="flex items-start gap-3">
-          <CheckCircle size={15} strokeWidth={1.5} className="text-green-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-green-900">Bid submitted successfully!</p>
-            <p className="text-xs text-green-700 mt-0.5">
-              The hirer will review your bid and get in touch if interested.
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const sym = symbolFor(job.currency)
 
   const handleSubmit = async () => {
     if (!amount) { setError('Please enter a bid amount'); return }
@@ -532,29 +398,86 @@ function BidForm({ job, myBid, isVerified }) {
     }
   }
 
-  return (
-    <div className="bg-white border p-5 sm:p-6"
-      style={{ borderColor: T.border, borderRadius: 4 }}>
+  if (!isVerified) {
+    return (
+      <div className="border border-ochre-soft rounded-md p-5 bg-ochre-soft">
+        <div className="flex items-start gap-3">
+          <AlertCircle size={15} strokeWidth={1.5} className="text-ochre-text flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="t-h3 text-ink">
+              Verification required to bid
+            </p>
+            <p className="text-xs mt-0.5 mb-3 text-ink-2">
+              Complete your profile verification to place bids on jobs.
+            </p>
+            <Link
+              href="/verification/apply"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-1.5 text-white
+                         rounded-sm bg-terracotta transition-colors hover:bg-terracotta-deep"
+            >
+              <Shield size={12} /> Start Verification
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
-      <div className="flex items-center gap-2 pb-4 mb-5 border-b"
-        style={{ borderColor: T.border }}>
-        <Send size={14} strokeWidth={1.5} style={{ color: T.textLight }} />
-        <h2 className="text-sm font-semibold" style={{ color: T.navy }}>Place Your Bid</h2>
+  if (myBid) {
+    return (
+      <div className="border border-line rounded-md p-5 bg-cream-2">
+        <div className="flex items-start gap-3">
+          <CheckCircle size={15} strokeWidth={1.5} className="text-ink-2 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-ink">
+              Your bid of <span className="t-money">{formatMoney(myBid.amount, job.currency)}</span> has been submitted
+            </p>
+            <p className="text-xs text-ink-2 mt-0.5">
+              Status: <span className="font-medium capitalize">{myBid.status}</span> —
+              you&apos;ll be notified when the hirer makes a decision.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (success) {
+    return (
+      <div className="border border-line rounded-md p-5 bg-verified-bg">
+        <div className="flex items-start gap-3">
+          <CheckCircle size={15} strokeWidth={1.5} className="text-verified flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-verified">Bid submitted successfully!</p>
+            <p className="text-xs text-verified mt-0.5">
+              The hirer will review your bid and get in touch if interested.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-surface border border-line rounded-md p-5 sm:p-6">
+
+      <div className="flex items-center gap-2 pb-4 mb-5 border-b border-line">
+        <Send size={14} strokeWidth={1.5} className="text-ink-3" />
+        <h2 className="t-h3 text-ink">Place Your Bid</h2>
       </div>
 
       <div className="space-y-4">
 
         {/* Amount */}
         <div>
-          <label className="text-xs font-semibold block mb-1.5" style={{ color: T.navyMid }}>
-            Your Bid Amount <span style={{ color: T.coral }}>*</span>
-            <span className="font-normal ml-1" style={{ color: T.textLight }}>
+          <label className="t-label block mb-1.5 text-ink-2">
+            Your Bid Amount <span className="text-terracotta">*</span>
+            <span className="font-normal ml-1 text-ink-3">
               — Budget: {formatBudget(job.budget_min, job.budget_max, job.currency)}
             </span>
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold"
-              style={{ color: T.textLight }}>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-ink-3">
               {sym}
             </span>
             <input
@@ -563,39 +486,33 @@ function BidForm({ job, myBid, isVerified }) {
               onChange={e => setAmount(e.target.value)}
               placeholder="Enter your price"
               min="1"
-              className="w-full pl-8 pr-3 py-2.5 text-sm border outline-none"
-              style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-              onFocus={e => e.target.style.borderColor = T.navy}
-              onBlur={e => e.target.style.borderColor = T.border}
+              className="w-full pl-8 pr-3 py-2.5 text-sm border border-line rounded-xs outline-none
+                         text-ink placeholder:text-ink-3 focus:border-terracotta transition-colors"
             />
           </div>
         </div>
 
         {/* Pitch */}
         <div>
-          <label className="text-xs font-semibold block mb-1.5" style={{ color: T.navyMid }}>
+          <label className="t-label block mb-1.5 text-ink-2">
             Your Pitch
-            <span className="font-normal ml-1" style={{ color: T.textLight }}>
+            <span className="font-normal ml-1 text-ink-3">
               — Why are you the right fit?
             </span>
           </label>
           <textarea
             value={pitch}
             onChange={e => setPitch(e.target.value)}
-            placeholder="Briefly describe your experience, relevant work, and why you'd be a great fit for this event..."
+            placeholder="Briefly describe your experience, relevant work, and why you'd be a great fit for this event…"
             rows={4}
-            className="w-full px-3 py-2.5 text-sm border outline-none resize-none"
-            style={{ borderColor: T.border, borderRadius: 4, color: T.navy }}
-            onFocus={e => e.target.style.borderColor = T.navy}
-            onBlur={e => e.target.style.borderColor = T.border}
+            className="w-full px-3 py-2.5 text-sm border border-line rounded-xs outline-none resize-none
+                       text-ink placeholder:text-ink-3 focus:border-terracotta transition-colors"
           />
         </div>
 
         {error && (
-          <div
-            className="flex items-center gap-2 p-3 border text-xs"
-            style={{ borderColor: '#FECACA', background: '#FFF5F5', borderRadius: 4, color: '#DC2626' }}
-          >
+          <div className="flex items-center gap-2 p-3 border border-line rounded-xs text-xs
+                          bg-danger-bg text-danger">
             <AlertCircle size={13} strokeWidth={1.5} /> {error}
           </div>
         )}
@@ -603,11 +520,11 @@ function BidForm({ job, myBid, isVerified }) {
         <button
           onClick={handleSubmit}
           disabled={loading || !amount}
-          className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          style={{ background: T.coral, borderRadius: 4 }}
+          className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white
+                     rounded-sm bg-terracotta transition-colors hover:bg-terracotta-deep disabled:opacity-50"
         >
-          <Send size={14} strokeWidth={2} />
-          {loading ? 'Submitting...' : 'Submit Bid'}
+          {loading ? <Agwo size={14} className="text-white" /> : <Send size={14} strokeWidth={2} />}
+          {loading ? 'Submitting…' : 'Submit Bid'}
         </button>
       </div>
     </div>
@@ -619,9 +536,11 @@ function BidsList({ bids, job, hire }) {
   const router = useRouter()
   const [hiring, setHiring] = useState(null)
   const [error, setError]   = useState(null)
+  const [pendingHire, setPendingHire] = useState(null)
 
-  const handleHire = async (bid) => {
-    if (!confirm(`Hire ${bid.provider.full_name} for this job?`)) return
+  const confirmHire = async () => {
+    const bid = pendingHire
+    if (!bid) return
     setHiring(bid.id)
     setError(null)
 
@@ -632,74 +551,68 @@ function BidsList({ bids, job, hire }) {
         body: JSON.stringify({ bid_id: bid.id, job_id: job.id }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error); setHiring(null); return }
+      if (!res.ok) { setError(data.error); setHiring(null); setPendingHire(null); return }
+      setPendingHire(null)
       router.refresh()
     } catch {
       setError('Network error — please try again')
       setHiring(null)
+      setPendingHire(null)
     }
   }
 
-  const symbols = {
-    USD: '$', EUR: '€', GBP: '£', NGN: '₦',
-    GHS: 'GH₵', KES: 'KSh', ZAR: 'R',
-    XAF: 'FCFA', XOF: 'CFA', CAD: 'CA$', AUD: 'A$'
-  }
-  const sym = symbols[job.currency] || '$'
-
   return (
-    <div className="bg-white border overflow-hidden"
-      style={{ borderColor: T.border, borderRadius: 4 }}>
+    <div className="bg-surface border border-line rounded-md overflow-hidden">
 
-      <div className="flex items-center justify-between px-5 py-3.5 border-b"
-        style={{ borderColor: T.border }}>
+      <ConfirmModal
+        open={!!pendingHire}
+        title={`Hire ${pendingHire?.provider?.full_name}?`}
+        body={`This accepts their bid of ${formatMoney(pendingHire?.amount, job.currency)} and closes the job to further bids. Other bidders will be notified.`}
+        confirmLabel="Confirm hire"
+        loading={!!hiring}
+        onConfirm={confirmHire}
+        onCancel={() => setPendingHire(null)}
+      />
+
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-line">
         <div className="flex items-center gap-2">
-          <Users size={14} strokeWidth={1.5} style={{ color: T.textLight }} />
-          <h2 className="text-sm font-semibold" style={{ color: T.navy }}>
+          <Users size={14} strokeWidth={1.5} className="text-ink-3" />
+          <h2 className="t-h3 text-ink">
             Bids Received ({bids.length})
           </h2>
         </div>
       </div>
 
       {error && (
-        <div className="mx-5 mt-4 flex items-center gap-2 p-3 border text-xs"
-          style={{ borderColor: '#FECACA', background: '#FFF5F5', borderRadius: 4, color: '#DC2626' }}>
+        <div className="mx-5 mt-4 flex items-center gap-2 p-3 border border-line rounded-xs text-xs
+                        bg-danger-bg text-danger">
           <AlertCircle size={13} strokeWidth={1.5} /> {error}
         </div>
       )}
 
       <div>
-        {bids.map((bid, i) => (
+        {bids.map(bid => (
           <div
             key={bid.id}
-            className="flex items-start gap-4 px-5 py-4 border-b last:border-0"
-            style={{
-              borderColor: T.border,
-              background: bid.status === 'accepted' ? '#F0FDF4' : '#fff',
-            }}
+            className={`flex items-start gap-4 px-5 py-4 border-b border-line last:border-0 ${
+              bid.status === 'accepted' ? 'bg-verified-bg' : 'bg-surface'
+            }`}
           >
             {/* Avatar */}
-            <div
-              className="w-9 h-9 flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-              style={{ background: T.navy, borderRadius: 4 }}
-            >
+            <div className="w-9 h-9 flex items-center justify-center text-white text-xs font-bold
+                            flex-shrink-0 bg-ink rounded-xs">
               {bid.provider?.full_name?.charAt(0) || '?'}
             </div>
 
             {/* Provider info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-sm font-semibold" style={{ color: T.navy }}>
+                <span className="text-sm font-semibold text-ink">
                   {bid.provider?.full_name}
                 </span>
-                {bid.provider?.is_verified && (
-                  <span className="flex items-center gap-1 text-xs text-blue-600">
-                    <CheckCircle size={11} strokeWidth={1.5} /> Verified
-                  </span>
-                )}
+                {bid.provider?.is_verified && <VerifiedBadge />}
                 {bid.status === 'accepted' && (
-                  <span className="text-xs font-semibold px-2 py-0.5 text-green-700"
-                    style={{ background: '#DCFCE7', borderRadius: 4 }}>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-xs bg-verified-bg text-verified">
                     Hired
                   </span>
                 )}
@@ -707,28 +620,28 @@ function BidsList({ bids, job, hire }) {
 
               <div className="flex items-center gap-3 mb-2 flex-wrap">
                 {bid.provider?.location && (
-                  <span className="flex items-center gap-1 text-xs" style={{ color: T.textLight }}>
+                  <span className="flex items-center gap-1 text-xs text-ink-3">
                     <MapPin size={10} strokeWidth={1.5} /> {bid.provider.location}
                   </span>
                 )}
                 {bid.provider?.average_rating > 0 && (
-                  <span className="flex items-center gap-1 text-xs" style={{ color: T.textLight }}>
-                    <Star size={10} strokeWidth={1.5} className="fill-amber-400 text-amber-400" />
+                  <span className="flex items-center gap-1 text-xs text-ink-3">
+                    <Star size={10} strokeWidth={1.5} className="fill-ochre text-ochre" />
                     {bid.provider.average_rating}
                   </span>
                 )}
                 {bid.provider?.completed_events > 0 && (
-                  <span className="flex items-center gap-1 text-xs" style={{ color: T.textLight }}>
+                  <span className="flex items-center gap-1 text-xs text-ink-3">
                     <Award size={10} strokeWidth={1.5} /> {bid.provider.completed_events} events
                   </span>
                 )}
-                <span className="text-xs" style={{ color: T.textLight }}>
+                <span className="text-xs text-ink-3">
                   {timeAgo(bid.created_at)}
                 </span>
               </div>
 
               {bid.pitch && (
-                <p className="text-xs leading-relaxed" style={{ color: T.textMuted }}>
+                <p className="text-xs leading-relaxed text-ink-2">
                   {bid.pitch}
                 </p>
               )}
@@ -736,19 +649,19 @@ function BidsList({ bids, job, hire }) {
 
             {/* Amount + actions */}
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
-              <span className="text-base font-bold" style={{ color: T.navy }}>
-                {sym}{Number(bid.amount).toLocaleString()}
+              <span className="text-base t-money text-ink">
+                {formatMoney(bid.amount, job.currency)}
               </span>
 
               <div className="flex flex-col gap-1.5">
                 {job.status === 'open' && bid.status === 'pending' && !hire && (
                   <button
-                    onClick={() => handleHire(bid)}
+                    onClick={() => setPendingHire(bid)}
                     disabled={hiring === bid.id}
-                    className="text-xs font-semibold px-4 py-1.5 text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                    style={{ background: T.coral, borderRadius: 4 }}
+                    className="text-xs font-semibold px-4 py-1.5 text-white rounded-sm bg-terracotta
+                               transition-colors hover:bg-terracotta-deep disabled:opacity-50"
                   >
-                    {hiring === bid.id ? 'Hiring...' : 'Hire'}
+                    {hiring === bid.id ? 'Hiring…' : 'Hire'}
                   </button>
                 )}
 
@@ -760,8 +673,7 @@ function BidsList({ bids, job, hire }) {
 
                 <Link
                   href={`/providers/${bid.provider_id}`}
-                  className="text-xs font-medium text-center transition-opacity hover:opacity-70"
-                  style={{ color: T.coral }}
+                  className="text-xs font-medium text-center text-terracotta hover:text-terracotta-deep"
                 >
                   View Profile
                 </Link>

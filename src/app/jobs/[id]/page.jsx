@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import JobDetail from '@/components/jobs/JobDetail'
+import AppBackdrop from '@/components/motifs/AppBackdrop'
 
 export default async function JobPage({ params, searchParams }) {
   // Next.js 15 — await both params and searchParams
@@ -62,7 +63,8 @@ export default async function JobPage({ params, searchParams }) {
     .single() : { data: null }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen bg-cream relative">
+      <AppBackdrop section="jobs" />
       <Navbar profile={profile} />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
         <JobDetail

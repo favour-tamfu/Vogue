@@ -1,4 +1,4 @@
-name: Vogue Events CI
+name: Avenue CI
 
 on:
   push:

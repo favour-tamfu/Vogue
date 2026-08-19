@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/layout/Navbar'
 import ProviderBrowse from '@/components/providers/ProviderBrowse'
+import AppBackdrop from '@/components/motifs/AppBackdrop'
 
 export default async function ProvidersPage() {
   const supabase = await createClient()
@@ -38,7 +39,8 @@ export default async function ProvidersPage() {
     .order('name')
 
   return (
-    <div className="min-h-screen" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen bg-cream relative">
+      <AppBackdrop section="providers" />
       <Navbar profile={currentUser} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
         <ProviderBrowse

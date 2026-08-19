@@ -1,9 +1,9 @@
 apiVersion: 1
 
 providers:
-  - name: 'Vogue Events'
+  - name: 'Avenue'
     orgId: 1
-    folder: 'Vogue Events'
+    folder: 'Avenue'
     type: file
     disableDeletion: false
     updateIntervalSeconds: 10

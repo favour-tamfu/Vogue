@@ -1,6 +1,6 @@
 {
-  "title": "Vogue Events — Application Monitoring",
-  "uid": "vogue-events-dashboard",
+  "title": "Avenue — Application Monitoring",
+  "uid": "avenue-dashboard",
   "version": 1,
   "schemaVersion": 30,
   "refresh": "10s",

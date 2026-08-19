@@ -13,14 +13,11 @@ const links = [
 ]
 
 // Pages where the bottom nav should NOT appear
-const HIDDEN_ON = ['/login', '/signup', '/onboarding', '/forgot-password']
-
-const T = {
-  coral:  '#E8523A',
-  navy:   '#0F172A',
-  border: '#E2E8F0',
-  light:  '#94A3B8',
-}
+const HIDDEN_ON = [
+  '/login', '/signup', '/onboarding',
+  '/forgot-password', '/reset-password',
+  '/trust', '/support', '/legal',
+]
 
 export default function MobileNav() {
   const pathname = usePathname()
@@ -30,10 +27,7 @@ export default function MobileNav() {
   if (shouldHide) return null
 
   return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t bg-white"
-      style={{ borderColor: T.border }}
-    >
+    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-line bg-surface">
       <div className="grid grid-cols-5">
         {links.map(link => {
           const active = pathname === link.href
@@ -41,14 +35,12 @@ export default function MobileNav() {
             <Link
               key={link.href}
               href={link.href}
-              className="flex flex-col items-center justify-center py-3 gap-1 transition-colors relative"
-              style={{ color: active ? T.coral : T.light }}
+              className={`flex flex-col items-center justify-center py-3 gap-1 transition-colors relative ${
+                active ? 'text-terracotta' : 'text-ink-3'
+              }`}
             >
               {active && (
-                <span
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
-                  style={{ background: T.coral }}
-                />
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-terracotta" />
               )}
               <link.icon size={20} strokeWidth={active ? 2.5 : 1.8} />
               <span className="text-xs font-medium">{link.label}</span>

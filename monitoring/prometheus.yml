@@ -4,9 +4,9 @@ global:
 
 scrape_configs:
   # Scrape the Next.js app metrics endpoint
-  - job_name: 'vogue-events'
+  - job_name: 'avenue'
     static_configs:
-      - targets: ['vogue-events:3000']
+      - targets: ['avenue:3000']
     metrics_path: '/api/metrics'
     scrape_interval: 10s
 
