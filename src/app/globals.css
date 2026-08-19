@@ -167,6 +167,60 @@ body {
   50%      { transform: translate(-7px, -9px) rotate(-1deg); }
 }
 
+/* MORPH — after a long interval a motif recedes and a different one grows
+   in its place. Two or three motifs share one slot and take turns.
+
+   Only opacity and transform animate, so every frame is GPU-composited and
+   the cost does not scale with path count. The float lives on the wrapper
+   and the morph on the child, so the two transforms never fight.
+
+   Cadence is deliberately slow (--cycle, 40–70s): this should register as
+   the ornament having quietly changed while you were reading, never as
+   something moving in your peripheral vision while you work. */
+
+.motif-morph {
+  opacity: 0;
+  transform-origin: center;
+  will-change: opacity, transform;
+}
+
+/* Two motifs sharing a slot — each holds for ~half the cycle */
+.motif-morph-2 {
+  animation: motif-morph-2 var(--cycle, 52s) cubic-bezier(.34, .05, .28, 1)
+             var(--delay, 0s) infinite;
+}
+@keyframes motif-morph-2 {
+  0%   { opacity: 0; transform: scale(.84) rotate(-1.5deg); }
+  6%   { opacity: 1; transform: scale(1)   rotate(0deg);    }
+  44%  { opacity: 1; transform: scale(1)   rotate(0deg);    }
+  50%  { opacity: 0; transform: scale(1.1) rotate(1.5deg);  }
+  100% { opacity: 0; transform: scale(.84) rotate(-1.5deg); }
+}
+
+/* Three motifs sharing a slot — each holds for ~a third */
+.motif-morph-3 {
+  animation: motif-morph-3 var(--cycle, 66s) cubic-bezier(.34, .05, .28, 1)
+             var(--delay, 0s) infinite;
+}
+@keyframes motif-morph-3 {
+  0%    { opacity: 0; transform: scale(.84) rotate(-1.5deg); }
+  4%    { opacity: 1; transform: scale(1)   rotate(0deg);    }
+  29%   { opacity: 1; transform: scale(1)   rotate(0deg);    }
+  33.4% { opacity: 0; transform: scale(1.1) rotate(1.5deg);  }
+  100%  { opacity: 0; transform: scale(.84) rotate(-1.5deg); }
+}
+
+/* BREATHE — a single motif that shrinks and swells in place rather than
+   handing over to another. Used where one motif anchors a surface. */
+.motif-breathe {
+  animation: motif-breathe var(--cycle, 44s) ease-in-out var(--delay, 0s) infinite;
+  transform-origin: center;
+}
+@keyframes motif-breathe {
+  0%, 100% { opacity: var(--o-lo, .55); transform: scale(.9);  }
+  50%      { opacity: var(--o-hi, 1);   transform: scale(1.06); }
+}
+
 /* Agwọ — the app's loading spinner */
 .agwo-spin {
   animation: agwo-rotate 2.4s linear infinite;
@@ -180,4 +234,9 @@ body {
   .motif-float,
   .motif-float2 { animation: none; }
   .agwo-spin   { animation: none; }
+  .motif-breathe { animation: none; }
+  /* A morph slot with no animation would stack every motif on top of each
+     other, so show only the first and hide the rest. */
+  .motif-morph { animation: none; opacity: 0; transform: none; }
+  .motif-morph:first-child { opacity: 1; }
 }
