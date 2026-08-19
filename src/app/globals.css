@@ -210,8 +210,61 @@ body {
   100%  { opacity: 0; transform: scale(.84) rotate(-1.5deg); }
 }
 
-/* BREATHE — a single motif that shrinks and swells in place rather than
-   handing over to another. Used where one motif anchors a surface. */
+/* SHUFFLE — the full sequence. A motif grows in, holds, slowly shrinks away
+   to almost nothing, pauses, regrows, holds again, then hands over to the
+   next motif in the slot. So the eye sees two different gestures before the
+   symbol changes, and the surface never settles into one loop. */
+
+.motif-shuffle-2 {
+  animation: motif-shuffle-2 var(--cycle, 74s) cubic-bezier(.36, .06, .28, 1)
+             var(--delay, 0s) infinite;
+}
+@keyframes motif-shuffle-2 {
+  0%    { opacity: 0;   transform: scale(.84) rotate(-1.5deg); }
+  5%    { opacity: 1;   transform: scale(1)   rotate(0deg);    }  /* grow in  */
+  18%   { opacity: 1;   transform: scale(1)   rotate(0deg);    }  /* hold     */
+  26%   { opacity: .10; transform: scale(.58) rotate(0deg);    }  /* recede   */
+  30%   { opacity: .10; transform: scale(.58) rotate(0deg);    }  /* absent   */
+  38%   { opacity: 1;   transform: scale(1.03) rotate(0deg);   }  /* regrow   */
+  41%   { opacity: 1;   transform: scale(1)   rotate(0deg);    }
+  45%   { opacity: 1;   transform: scale(1)   rotate(0deg);    }  /* hold     */
+  50%   { opacity: 0;   transform: scale(1.1) rotate(1.5deg);  }  /* hand over*/
+  100%  { opacity: 0;   transform: scale(.84) rotate(-1.5deg); }
+}
+
+.motif-shuffle-3 {
+  animation: motif-shuffle-3 var(--cycle, 96s) cubic-bezier(.36, .06, .28, 1)
+             var(--delay, 0s) infinite;
+}
+@keyframes motif-shuffle-3 {
+  0%    { opacity: 0;   transform: scale(.84) rotate(-1.5deg); }
+  3.5%  { opacity: 1;   transform: scale(1)   rotate(0deg);    }
+  12%   { opacity: 1;   transform: scale(1)   rotate(0deg);    }
+  17%   { opacity: .10; transform: scale(.58) rotate(0deg);    }
+  20%   { opacity: .10; transform: scale(.58) rotate(0deg);    }
+  25.5% { opacity: 1;   transform: scale(1.03) rotate(0deg);   }
+  27.5% { opacity: 1;   transform: scale(1)   rotate(0deg);    }
+  30%   { opacity: 1;   transform: scale(1)   rotate(0deg);    }
+  33.4% { opacity: 0;   transform: scale(1.1) rotate(1.5deg);  }
+  100%  { opacity: 0;   transform: scale(.84) rotate(-1.5deg); }
+}
+
+/* RECEDE — for a slot with only one motif and nothing to hand over to.
+   Slowly shrinks away to nothing, rests, then regrows. */
+.motif-recede {
+  animation: motif-recede var(--cycle, 48s) cubic-bezier(.36, .06, .28, 1)
+             var(--delay, 0s) infinite;
+  transform-origin: center;
+}
+@keyframes motif-recede {
+  0%,  34% { opacity: 1;   transform: scale(1);    }
+  48%      { opacity: .08; transform: scale(.55);  }  /* shrunk away */
+  56%      { opacity: .08; transform: scale(.55);  }  /* held absent */
+  72%      { opacity: 1;   transform: scale(1.03); }  /* regrow      */
+  78%,100% { opacity: 1;   transform: scale(1);    }
+}
+
+/* BREATHE — the gentlest option: swells and settles, never disappears. */
 .motif-breathe {
   animation: motif-breathe var(--cycle, 44s) ease-in-out var(--delay, 0s) infinite;
   transform-origin: center;
@@ -234,9 +287,14 @@ body {
   .motif-float,
   .motif-float2 { animation: none; }
   .agwo-spin   { animation: none; }
-  .motif-breathe { animation: none; }
-  /* A morph slot with no animation would stack every motif on top of each
-     other, so show only the first and hide the rest. */
-  .motif-morph { animation: none; opacity: 0; transform: none; }
-  .motif-morph:first-child { opacity: 1; }
+  .motif-breathe,
+  .motif-recede { animation: none; opacity: 1; transform: none; }
+  /* A slot with no animation would stack every motif on top of each other,
+     so show only the first and hide the rest. */
+  .motif-morph,
+  .motif-shuffle-2,
+  .motif-shuffle-3 { animation: none; opacity: 0; transform: none; }
+  .motif-morph:first-child,
+  .motif-shuffle-2:first-child,
+  .motif-shuffle-3:first-child { opacity: 1; }
 }
