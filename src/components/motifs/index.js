@@ -28,3 +28,33 @@ export { default as Onuuzo }  from './Onuuzo'   // threshold — empty states
 export { default as Ugo }     from './Ugo'      // eagle feather — top-rated provider
 export { default as Osisi }   from './Osisi'    // the tree — stats and growth
 export { default as Anyanwu } from './Anyanwu'  // the sun — onboarding / new
+
+// ── Families ─────────────────────────────────────────────────────────────
+// A motif should hand over to one that shares its line character, so the
+// change reads as the same drawing continuing rather than a slide swap.
+// Grouped by silhouette, not by meaning.
+
+import Omumu   from './Omumu'
+import Eke     from './Eke'
+import Akwukwo from './Akwukwo'
+import Nku     from './Nku'
+import Odu     from './Odu'
+import Nnyo    from './Nnyo'
+import Ugo     from './Ugo'
+import Osisi   from './Osisi'
+import Anyanwu from './Anyanwu'
+import Onuuzo  from './Onuuzo'
+
+/** Vertical botanical growth — a stem that branches. */
+export const GROWTH = [Omumu, Akwukwo, Osisi]
+
+/** Long sweeping curves that turn back on themselves. */
+export const SWEEP = [Eke, Odu, Nku]
+
+/** Radial forms built from a spiral core. */
+export const SPIRAL = [Nnyo, Anyanwu, Onuuzo]
+
+/** Plumes and fans — many fine strokes off one spine. */
+export const PLUME = [Ugo, Akwukwo, Osisi]
+
+export const FAMILIES = { GROWTH, SWEEP, SPIRAL, PLUME }
