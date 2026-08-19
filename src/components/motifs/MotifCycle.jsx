@@ -21,11 +21,27 @@
  *     className="absolute -left-16 bottom-0 text-sand opacity-40"
  *   />
  */
+/**
+ * mode:
+ *   'shuffle' — grow in, hold, shrink away, rest, regrow, hold, hand over.
+ *               The full sequence; the default for decorative surfaces.
+ *   'morph'   — a plain hand-over, no mid-life recede. Calmer.
+ *   'recede'  — single motif: shrink away to nothing, rest, regrow.
+ *   'breathe' — single motif: swells and settles, never disappears.
+ */
+const MODES = {
+  shuffle: { multi: n => `motif-shuffle-${n}`, single: 'motif-recede',  cycle: n => (n === 2 ? '74s' : '96s') },
+  morph:   { multi: n => `motif-morph motif-morph-${n}`, single: 'motif-breathe', cycle: n => (n === 2 ? '52s' : '66s') },
+  recede:  { multi: n => `motif-shuffle-${n}`, single: 'motif-recede',  cycle: () => '48s' },
+  breathe: { multi: n => `motif-morph motif-morph-${n}`, single: 'motif-breathe', cycle: () => '44s' },
+}
+
 export default function MotifCycle({
   motifs = [],
   size = 260,
   sizes,
   cycle,
+  mode = 'shuffle',
   float = 'motif-float',
   floatDuration = '22s',
   delay = '0s',
@@ -36,12 +52,12 @@ export default function MotifCycle({
   const slots = motifs.length
   if (!slots) return null
 
-  // One motif has nothing to hand over to — breathe in place instead.
-  const morphClass = slots === 1
-    ? 'motif-breathe'
-    : slots === 2 ? 'motif-morph motif-morph-2' : 'motif-morph motif-morph-3'
+  const m = MODES[mode] || MODES.shuffle
 
-  const cycleValue = cycle || (slots === 2 ? '52s' : slots === 3 ? '66s' : '44s')
+  // One motif has nothing to hand over to — it recedes or breathes in place.
+  const morphClass = slots === 1 ? m.single : m.multi(slots === 2 ? 2 : 3)
+
+  const cycleValue = cycle || m.cycle(slots)
 
   // Stagger each motif by an equal share of the cycle so the handover is
   // continuous and no two are ever fully opaque at the same moment.
