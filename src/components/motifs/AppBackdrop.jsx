@@ -36,16 +36,15 @@ export default function AppBackdrop({ section = 'dashboard' }) {
   const { trio, pos, mobilePos, float, fd, cycle } = cfg
 
   return (
-    <MotifLayer className="fixed">
+    <MotifLayer position="fixed">
       {/* Phone — one anchor, low and out of the reading column */}
       <MotifCycle
         motifs={trio}
-        size={240}
+        size={150}
         cycle={cycle}
         float={float}
         floatDuration={fd}
-        animateFirst={false}
-        className={`absolute ${mobilePos} text-terracotta opacity-[0.13] md:hidden`}
+        className={`absolute ${mobilePos} text-terracotta opacity-[0.10] md:hidden`}
       />
 
       {/* Tablet and up — the original placement */}
@@ -55,7 +54,6 @@ export default function AppBackdrop({ section = 'dashboard' }) {
         cycle={cycle}
         float={float}
         floatDuration={fd}
-        animateFirst={false}
         className={`absolute ${pos} text-terracotta opacity-[0.16] hidden md:inline-block`}
       />
     </MotifLayer>

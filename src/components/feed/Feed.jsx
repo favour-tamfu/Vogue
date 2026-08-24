@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
-  Star, MapPin, DollarSign, Users,
+  Star, MapPin, Wallet, Users,
   Heart, Bookmark, Share2, CheckCircle,
   Briefcase, Image as ImageIcon, UserPlus, ArrowRight,
   Award
@@ -348,7 +348,7 @@ function JobCard({ job, currentUser, isLiked }) {
         <div className="grid grid-cols-2 gap-2 mb-4">
           {[
             { icon: MapPin,    value: job.location },
-            { icon: DollarSign,value: formatBudget(job.budget_min, job.budget_max, job.currency) },
+            { icon: Wallet,value: formatBudget(job.budget_min, job.budget_max, job.currency) },
             { icon: Users,     value: `${job.bids_count} bids so far` },
           ].map((meta, i) => (
             <div key={i} className="flex items-center gap-2 p-2.5 border border-line rounded-xs bg-cream">

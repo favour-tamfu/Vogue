@@ -8,6 +8,7 @@ import {
   MapPin, CheckCircle, Search
 } from 'lucide-react'
 import { formatMoney } from '@/lib/currency'
+import VerifiedBadge from '@/components/ui/VerifiedBadge'
 
 function timeAgo(dateStr) {
   const diff  = Date.now() - new Date(dateStr).getTime()
@@ -44,9 +45,12 @@ export default function HirerView({
             </span>
           </div>
           <nav className="p-1.5 space-y-0.5">
+            {/* A text link like its siblings. A filled button inside a list
+                of plain nav links mixes two component metaphors in one stack;
+                the header button is this screen's primary CTA. */}
             <Link href="/jobs/new"
-              className="flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-white
-                         rounded-xs bg-terracotta transition-colors hover:bg-terracotta-deep">
+              className="flex items-center gap-2.5 px-3 py-2 text-sm font-semibold rounded-xs
+                         text-terracotta transition-colors hover:bg-terracotta-soft">
               <Plus size={14} strokeWidth={2.5} /> Post a Job
             </Link>
             {[
@@ -71,20 +75,21 @@ export default function HirerView({
           </nav>
         </div>
 
-        {/* Top providers — desktop sidebar */}
-        <TopProviders providers={topProviders} />
-
-        <div className="border border-ink rounded-md p-4 bg-ink">
+        {/* "Top Rated" and "Need Someone?" each have exactly one home. Both
+            previously rendered in this rail AND the right one, which reads as
+            a component mounted twice rather than a layout decision. */}
+        <div className="border border-line rounded-md p-4 bg-cream-2">
           <div className="flex items-center gap-2 mb-1">
-            <Users size={13} strokeWidth={1.5} className="text-sand" />
-            <span className="text-sm font-semibold text-white">Need Someone?</span>
+            <Users size={13} strokeWidth={1.5} className="text-terracotta" />
+            <span className="text-sm font-semibold text-ink">Need Someone?</span>
           </div>
-          <p className="text-xs leading-relaxed mb-4 text-ink-3">
+          <p className="text-xs leading-relaxed mb-4 text-ink-2">
             Post a job and receive bids from verified professionals within hours.
           </p>
           <Link href="/jobs/new"
-            className="flex items-center justify-center gap-1.5 w-full py-2 text-sm font-semibold text-white
-                       rounded-sm bg-terracotta transition-colors hover:bg-terracotta-deep">
+            className="flex items-center justify-center gap-1.5 w-full py-2 text-sm font-semibold
+                       rounded-sm border border-terracotta text-terracotta transition-colors
+                       hover:bg-terracotta-soft">
             Post a Job <ArrowRight size={13} />
           </Link>
         </div>
@@ -201,9 +206,7 @@ export default function HirerView({
                     <span className="text-sm font-medium truncate text-ink">
                       {bid.provider?.full_name}
                     </span>
-                    {bid.provider?.is_verified && (
-                      <CheckCircle size={11} strokeWidth={1.5} className="text-verified flex-shrink-0" />
-                    )}
+                    {bid.provider?.is_verified && <VerifiedBadge />}
                   </div>
                   <span className="text-xs truncate block text-ink-3">
                     {bid.job?.title}
@@ -345,20 +348,6 @@ export default function HirerView({
         </div>
 
         <TopProviders providers={topProviders} />
-
-        <div className="border border-ink rounded-md p-4 bg-ink">
-          <span className="t-micro block mb-2 text-sand">
-            Need Someone?
-          </span>
-          <p className="text-xs leading-relaxed mb-3 text-ink-3">
-            Post a job and receive bids from verified professionals.
-          </p>
-          <Link href="/jobs/new"
-            className="flex items-center justify-center gap-1.5 w-full py-2 text-sm font-semibold text-white
-                       rounded-sm bg-terracotta transition-colors hover:bg-terracotta-deep">
-            Post a Job <ArrowRight size={13} />
-          </Link>
-        </div>
       </div>
 
     </div>

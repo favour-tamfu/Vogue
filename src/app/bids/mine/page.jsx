@@ -38,7 +38,7 @@ export default async function MyBidsPage() {
     <div className="min-h-screen bg-cream relative">
       <AppBackdrop section="bids" />
       <Navbar profile={profile} />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
+      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
         <MyBids bids={bids || []} profile={profile} />
       </main>
     </div>

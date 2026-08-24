@@ -2,13 +2,15 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { Search, MapPin, Star, Briefcase, CheckCircle, X } from 'lucide-react'
+import { Search, SlidersHorizontal, MapPin, Star, Briefcase, ChevronDown, X } from 'lucide-react'
 import Akwukwo from '@/components/motifs/Akwukwo'
+import VerifiedBadge from '@/components/ui/VerifiedBadge'
 
 export default function ProviderBrowse({ providers, categories }) {
   const [search, setSearch]         = useState('')
   const [selectedCategory, setCategory] = useState('')
   const [selectedLocation, setLocation] = useState('')
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const filtered = useMemo(() => {
     return providers.filter(p => {
@@ -33,23 +35,24 @@ export default function ProviderBrowse({ providers, categories }) {
     setLocation('')
   }
 
-  const hasFilters = search || selectedCategory || selectedLocation
+  const activeFilters = [selectedCategory, selectedLocation].filter(Boolean).length
+  const hasFilters = search || activeFilters > 0
 
   return (
     <div>
       {/* Header */}
       <div className="mb-6">
         <h1 className="t-h1 text-ink">
-          Find Providers
+          Providers
         </h1>
         <p className="text-sm mt-0.5 text-ink-2">
           {filtered.length} verified professional{filtered.length !== 1 ? 's' : ''} available
         </p>
       </div>
 
-      {/* Search + filters */}
+      {/* Search + filter bar — same pattern as the job board. Narrowing a
+          list is one mental task and should not be two different UIs. */}
       <div className="bg-surface border border-line rounded-md p-3 mb-5 flex flex-col sm:flex-row gap-3">
-        {/* Search */}
         <div className="relative flex-1">
           <Search size={14} strokeWidth={1.5}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
@@ -63,28 +66,23 @@ export default function ProviderBrowse({ providers, categories }) {
           />
         </div>
 
-        {/* Category */}
-        <select
-          value={selectedCategory}
-          onChange={e => setCategory(e.target.value)}
-          className="px-3 py-2 text-sm border border-line rounded-xs outline-none bg-surface text-ink
-                     focus:border-terracotta transition-colors"
+        <button
+          onClick={() => setFiltersOpen(!filtersOpen)}
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border rounded-xs
+                      transition-colors flex-shrink-0 ${
+            activeFilters > 0
+              ? 'border-terracotta text-terracotta bg-terracotta-soft'
+              : 'border-line text-ink-2 bg-surface'
+          }`}
         >
-          <option value="">All Categories</option>
-          {categories.map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
-
-        {/* Location */}
-        <input
-          type="text"
-          value={selectedLocation}
-          onChange={e => setLocation(e.target.value)}
-          placeholder="Location…"
-          className="px-3 py-2 text-sm border border-line rounded-xs outline-none sm:w-40 text-ink
-                     placeholder:text-ink-3 focus:border-terracotta transition-colors"
-        />
+          <SlidersHorizontal size={14} strokeWidth={1.5} />
+          Filters
+          {activeFilters > 0 && (
+            <span className="text-xs font-bold px-1.5 py-0.5 text-white rounded-[3px] bg-terracotta">
+              {activeFilters}
+            </span>
+          )}
+        </button>
 
         {hasFilters && (
           <button
@@ -96,6 +94,42 @@ export default function ProviderBrowse({ providers, categories }) {
           </button>
         )}
       </div>
+
+      {/* Filter panel */}
+      {filtersOpen && (
+        <div className="bg-surface border border-line rounded-md p-4 mb-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="t-label block mb-1.5 text-ink-2">Category</label>
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={e => setCategory(e.target.value)}
+                className="w-full appearance-none px-3 py-2 text-sm border border-line rounded-xs outline-none
+                           bg-surface text-ink focus:border-terracotta transition-colors"
+              >
+                <option value="">All Categories</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={12} strokeWidth={1.5}
+                className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-ink-3" />
+            </div>
+          </div>
+
+          <div>
+            <label className="t-label block mb-1.5 text-ink-2">Location</label>
+            <input
+              type="text"
+              value={selectedLocation}
+              onChange={e => setLocation(e.target.value)}
+              placeholder="e.g. Lagos, Abuja…"
+              className="w-full px-3 py-2 text-sm border border-line rounded-xs outline-none text-ink
+                         placeholder:text-ink-3 focus:border-terracotta transition-colors"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Provider grid */}
       {filtered.length === 0 ? (
@@ -154,9 +188,7 @@ function ProviderCard({ provider }) {
               <span className="text-sm font-semibold truncate text-ink">
                 {provider.full_name}
               </span>
-              {provider.is_verified && (
-                <CheckCircle size={13} strokeWidth={1.5} className="text-verified flex-shrink-0" />
-              )}
+              {provider.is_verified && <VerifiedBadge />}
             </div>
             {provider.location && (
               <div className="flex items-center gap-1 mt-0.5">

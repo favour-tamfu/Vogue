@@ -10,8 +10,8 @@ import {
 } from 'lucide-react'
 import AuthShell from '@/components/layout/AuthShell'
 import Agwo from '@/components/motifs/Agwo'
-import Omumu from '@/components/motifs/Omumu'
-import Anyanwu from '@/components/motifs/Anyanwu'
+import MotifCycle from '@/components/motifs/MotifCycle'
+import { GROWTH, SPIRAL } from '@/components/motifs'
 
 const POINTS = [
   { icon: IdCard,   title: 'Verified before they bid', desc: 'Every provider passes an ID check first.' },
@@ -102,10 +102,13 @@ export default function SignupPage() {
         headline="One click and you're in."
         points={POINTS}
         motif={
-          <Anyanwu
+          <MotifCycle
+            motifs={SPIRAL}
             size={440}
-            className="motif-float absolute -left-20 top-1/4 text-sand opacity-30"
-            style={{ '--fd': '22s' }}
+            cycle="88s"
+            float="motif-float"
+            floatDuration="22s"
+            className="absolute -left-20 top-1/4 text-sand opacity-30"
           />
         }
       >
@@ -137,16 +140,22 @@ export default function SignupPage() {
       motif={
         <>
           {/* Ọmụmụ — growth. The right motif for a new account. */}
-          <Omumu
+          <MotifCycle
+            motifs={GROWTH}
             size={400}
-            className="motif-float absolute -left-16 bottom-0 text-sand opacity-35"
-            style={{ '--fd': '20s' }}
+            cycle="92s"
+            float="motif-float"
+            floatDuration="20s"
+            className="absolute -left-16 bottom-0 text-sand opacity-35"
           />
-          <Anyanwu
-            animate={false}
+          <MotifCycle
+            motifs={SPIRAL}
             size={240}
-            className="motif-float2 absolute -right-14 top-16 text-sand opacity-20"
-            style={{ '--fd': '26s', '--delay': '1.4s' }}
+            cycle="78s"
+            float="motif-float2"
+            floatDuration="26s"
+            delay="1.4s"
+            className="absolute -right-14 top-16 text-sand opacity-20"
           />
         </>
       }

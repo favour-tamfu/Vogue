@@ -3,7 +3,8 @@ import { ShieldCheck, MapPin } from 'lucide-react'
 import Logo from '@/components/brand/Logo'
 import MotifLayer from '@/components/motifs/MotifLayer'
 import Mbubu from '@/components/motifs/Mbubu'
-import Nku from '@/components/motifs/Nku'
+import MotifCycle from '@/components/motifs/MotifCycle'
+import { SWEEP } from '@/components/motifs'
 import { PRODUCT_NAME } from '@/lib/brand'
 
 const COLUMNS = [
@@ -55,11 +56,21 @@ export default function Footer() {
       </div>
 
       <MotifLayer>
-        <Nku
-          animate={false}
+        <MotifCycle
+          motifs={SWEEP}
+          size={140}
+          cycle="82s"
+          float="motif-float2"
+          floatDuration="24s"
+          className="absolute -bottom-8 -right-8 text-sand opacity-[0.13] sm:hidden"
+        />
+        <MotifCycle
+          motifs={SWEEP}
           size={340}
-          className="motif-float2 absolute -bottom-16 -right-16 text-sand opacity-25"
-          style={{ '--fd': '24s' }}
+          cycle="100s"
+          float="motif-float2"
+          floatDuration="24s"
+          className="absolute -bottom-16 -right-16 text-sand opacity-25 hidden sm:inline-block"
         />
       </MotifLayer>
 

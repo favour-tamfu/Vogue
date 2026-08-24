@@ -4,8 +4,8 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
-  Search, SlidersHorizontal, MapPin, DollarSign,
-  Users, Clock, ChevronDown, X,
+  Search, SlidersHorizontal, MapPin, Wallet,
+  Users, Clock, Calendar, ChevronDown, X,
   ArrowRight, Lock, Plus
 } from 'lucide-react'
 import { formatBudget } from '@/lib/currency'
@@ -62,7 +62,7 @@ export default function JobBoard({ initialJobs, categories, profile }) {
       {/* Page header */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="t-h1 text-ink">Job Board</h1>
+          <h1 className="t-h1 text-ink">Jobs</h1>
           <p className="text-sm mt-0.5 text-ink-2">
             {filteredJobs.length} open job{filteredJobs.length !== 1 ? 's' : ''} available
           </p>
@@ -280,16 +280,17 @@ export default function JobBoard({ initialJobs, categories, profile }) {
 
           {/* Post a job CTA */}
           {(profile?.role === 'hirer' || profile?.role === 'both') && (
-            <div className="border border-ink rounded-md p-4 bg-ink">
-              <p className="t-micro mb-2 text-sand">
+            <div className="border border-line rounded-md p-4 bg-cream-2">
+              <p className="t-micro mb-2 text-terracotta">
                 Need Someone?
               </p>
-              <p className="text-xs leading-relaxed mb-3 text-ink-3">
+              <p className="text-xs leading-relaxed mb-3 text-ink-2">
                 Post a job and receive bids from verified professionals within hours.
               </p>
               <Link href="/jobs/new"
-                className="flex items-center justify-center gap-1.5 w-full py-2 text-sm font-semibold text-white
-                           rounded-sm bg-terracotta transition-colors hover:bg-terracotta-deep">
+                className="flex items-center justify-center gap-1.5 w-full py-2 text-sm font-semibold
+                           rounded-sm border border-terracotta text-terracotta transition-colors
+                           hover:bg-terracotta-soft">
                 Post a Job <ArrowRight size={13} />
               </Link>
             </div>
@@ -297,11 +298,11 @@ export default function JobBoard({ initialJobs, categories, profile }) {
 
           {/* Guest CTA */}
           {!isLoggedIn && (
-            <div className="border border-ink rounded-md p-4 bg-ink">
-              <p className="t-micro mb-2 text-sand">
+            <div className="border border-terracotta rounded-md p-4 bg-terracotta-soft">
+              <p className="t-micro mb-2 text-terracotta">
                 Join {PRODUCT_NAME}
               </p>
-              <p className="text-xs leading-relaxed mb-3 text-ink-3">
+              <p className="text-xs leading-relaxed mb-3 text-ink-2">
                 Sign up free to bid on jobs and grow your events career.
               </p>
               <Link href="/signup"
@@ -342,26 +343,30 @@ function JobCard({ job, isLoggedIn, isProvider, isVerified }) {
         <div className="flex items-start justify-between gap-4">
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
+            {/* Title leads. Category and event type are quiet metadata
+                beneath it — a saturated chip above the title pulls the eye to
+                the category before the job. */}
+            <Link href={`/jobs/${job.id}`}>
+              <h3 className="t-h3 leading-snug group-hover:underline text-ink">
+                {job.title}
+              </h3>
+            </Link>
+
+            <div className="flex items-center gap-2 mt-1 mb-2.5 flex-wrap">
               {job.category && (
-                <span className="text-xs font-medium px-2 py-0.5 rounded-xs bg-terracotta-soft text-terracotta">
+                <span className="text-xs font-medium text-ink-2">
                   {job.category.name}
                 </span>
               )}
-              <span className="text-xs px-2 py-0.5 border border-line rounded-xs text-ink-3">
+              <span className="text-ink-3" aria-hidden="true">·</span>
+              <span className="text-xs text-ink-3">
                 {job.event_type}
               </span>
               <span className="flex items-center gap-1 text-xs ml-auto text-ink-3">
                 <Clock size={10} strokeWidth={1.5} />
-                {timeAgo(job.created_at)}
+                Posted {timeAgo(job.created_at)}
               </span>
             </div>
-
-            <Link href={`/jobs/${job.id}`}>
-              <h3 className="t-h3 leading-snug mb-2.5 group-hover:underline text-ink">
-                {job.title}
-              </h3>
-            </Link>
 
             {job.description && (
               <p className="text-xs leading-relaxed mb-3 line-clamp-2 text-ink-2">
@@ -375,7 +380,7 @@ function JobCard({ job, isLoggedIn, isProvider, isVerified }) {
                 {job.location}
               </span>
               <span className="flex items-center gap-1 text-xs text-ink-2">
-                <DollarSign size={11} strokeWidth={1.5} className="text-ink-3" />
+                <Wallet size={11} strokeWidth={1.5} className="text-ink-3" />
                 {formatBudget(job.budget_min, job.budget_max, job.currency)}
               </span>
               <span className="flex items-center gap-1 text-xs text-ink-2">
@@ -384,8 +389,8 @@ function JobCard({ job, isLoggedIn, isProvider, isVerified }) {
               </span>
               {job.event_date && (
                 <span className="flex items-center gap-1 text-xs text-ink-2">
-                  <Clock size={11} strokeWidth={1.5} className="text-ink-3" />
-                  {new Date(job.event_date).toLocaleDateString('en-GB', {
+                  <Calendar size={11} strokeWidth={1.5} className="text-ink-3" />
+                  Event {new Date(job.event_date).toLocaleDateString('en-GB', {
                     day: 'numeric', month: 'short', year: 'numeric'
                   })}
                 </span>

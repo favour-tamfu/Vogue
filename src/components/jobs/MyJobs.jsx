@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import {
-  Plus, MapPin, DollarSign,
+  Plus, MapPin, Wallet,
   Users, Clock, ChevronDown, ChevronUp,
-  CheckCircle, Star, ArrowRight, Eye
+  Star, ArrowRight, Eye
 } from 'lucide-react'
 import { formatBudget, formatMoney } from '@/lib/currency'
 import Onuuzo from '@/components/motifs/Onuuzo'
+import VerifiedBadge from '@/components/ui/VerifiedBadge'
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-GB', {
@@ -152,7 +153,7 @@ export default function MyJobs({ jobs }) {
                           {job.location}
                         </span>
                         <span className="flex items-center gap-1 text-xs text-ink-2">
-                          <DollarSign size={11} strokeWidth={1.5} className="text-ink-3" />
+                          <Wallet size={11} strokeWidth={1.5} className="text-ink-3" />
                           {formatBudget(job.budget_min, job.budget_max, job.currency)}
                         </span>
                         <span className="flex items-center gap-1 text-xs text-ink-2">
@@ -242,9 +243,7 @@ export default function MyJobs({ jobs }) {
                                 <span className="text-sm font-medium text-ink">
                                   {bid.provider?.full_name}
                                 </span>
-                                {bid.provider?.is_verified && (
-                                  <CheckCircle size={12} strokeWidth={1.5} className="text-verified" />
-                                )}
+                                {bid.provider?.is_verified && <VerifiedBadge />}
                               </div>
                               <div className="flex items-center gap-2 mt-0.5">
                                 {bid.provider?.average_rating > 0 && (

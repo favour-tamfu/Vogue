@@ -7,7 +7,8 @@ import { AlertCircle, Eye, EyeOff, CheckCircle, KeyRound, ShieldCheck, Lock } fr
 import AuthShell from '@/components/layout/AuthShell'
 import Agwo from '@/components/motifs/Agwo'
 import Isi from '@/components/motifs/Isi'
-import Nku from '@/components/motifs/Nku'
+import MotifCycle from '@/components/motifs/MotifCycle'
+import { SWEEP } from '@/components/motifs'
 
 const POINTS = [
   { icon: Lock,        title: 'Pick something new',  desc: 'At least 6 characters.' },
@@ -54,10 +55,13 @@ export default function ResetPasswordPage() {
       headline="Set a new password."
       points={POINTS}
       motif={
-        <Nku
+        <MotifCycle
+          motifs={SWEEP}
           size={420}
-          className="motif-float2 absolute -left-20 bottom-0 text-sand opacity-30"
-          style={{ '--fd': '25s' }}
+          cycle="90s"
+          float="motif-float2"
+          floatDuration="25s"
+          className="absolute -left-20 bottom-0 text-sand opacity-30"
         />
       }
     >

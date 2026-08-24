@@ -1,27 +1,58 @@
+import { createClient } from '@/lib/supabase/server'
 import PublicNav from './PublicNav'
+import Navbar from './Navbar'
 import Footer from './Footer'
 import MotifLayer from '@/components/motifs/MotifLayer'
-import Nku from '@/components/motifs/Nku'
+import MotifCycle from '@/components/motifs/MotifCycle'
+import { SWEEP } from '@/components/motifs'
 
 /**
  * Shell for long-form public pages (trust, support, legal).
+ *
+ * Auth-aware on purpose. These pages are reachable from inside the product —
+ * Trust & Safety and Support sit in the signed-in account menu — so rendering
+ * the logged-out nav here stranded people: no route back to the dashboard,
+ * and a "Log in / Get Started" pair aimed at someone already logged in.
  */
-export default function ContentPage({ eyebrow, title, intro, updated, children }) {
+export default async function ContentPage({ eyebrow, title, intro, updated, children }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  let profile = null
+  if (user) {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+    profile = data
+  }
+
   return (
     <div className="min-h-screen bg-cream">
-      <PublicNav />
+      {profile ? <Navbar profile={profile} /> : <PublicNav />}
 
       <header className="relative overflow-hidden border-b border-line bg-cream-2 pt-24 pb-12">
         <MotifLayer>
-          <Nku
-            animate={false}
+          <MotifCycle
+            motifs={SWEEP}
+            size={130}
+            cycle="84s"
+            float="motif-float"
+            floatDuration="22s"
+            className="absolute -top-6 -right-8 text-terracotta opacity-[0.16] sm:hidden"
+          />
+          <MotifCycle
+            motifs={SWEEP}
             size={280}
-            className="motif-float absolute -top-10 -right-10 text-terracotta opacity-30"
-            style={{ '--fd': '22s' }}
+            cycle="94s"
+            float="motif-float"
+            floatDuration="22s"
+            className="absolute -top-10 -right-10 text-terracotta opacity-30 hidden sm:inline-block"
           />
         </MotifLayer>
 
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-6" style={{ zIndex: 1 }}>
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6" style={{ zIndex: 10 }}>
           {eyebrow && <p className="t-micro text-terracotta mb-2">{eyebrow}</p>}
           <h1 className="t-hero text-ink">{title}</h1>
           {intro && (
@@ -33,7 +64,7 @@ export default function ContentPage({ eyebrow, title, intro, updated, children }
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+      <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 py-12 pb-24 md:pb-12">
         {children}
       </main>
 

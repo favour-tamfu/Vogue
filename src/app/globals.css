@@ -167,111 +167,129 @@ body {
   50%      { transform: translate(-7px, -9px) rotate(-1deg); }
 }
 
-/* MORPH — after a long interval a motif recedes and a different one grows
-   in its place. Two or three motifs share one slot and take turns.
+/* TURNS — a slot holds two or three motifs and they take turns.
 
-   Only opacity and transform animate, so every frame is GPU-composited and
-   the cost does not scale with path count. The float lives on the wrapper
-   and the morph on the child, so the two transforms never fight.
+   One turn is: the motif draws itself on exactly as it does on first load,
+   flows gently for a long while, then fades out. The slot sits empty for a
+   beat, and a different motif draws itself on — a few pixels off the last
+   one's position, so it never regrows on the same spot.
 
-   Cadence is deliberately slow (--cycle, 40–70s): this should register as
-   the ornament having quietly changed while you were reading, never as
-   something moving in your peripheral vision while you work. */
+   The draw and the dot-bloom are re-driven here as looping animations keyed
+   to the slot's cycle, which is why they repeat on every turn instead of
+   running once on mount. `--turn-delay` is a separate variable from the
+   per-path `--delay` so the two never collide in the cascade.
 
-.motif-morph {
+   Cadence is deliberately slow: this should register as the ornament having
+   quietly changed while you were reading, never as movement in your
+   peripheral vision while you work. */
+
+.motif-turn {
   opacity: 0;
   transform-origin: center;
   will-change: opacity, transform;
 }
 
-/* Two motifs sharing a slot — each holds for ~half the cycle */
-.motif-morph-2 {
-  animation: motif-morph-2 var(--cycle, 52s) cubic-bezier(.34, .05, .28, 1)
-             var(--delay, 0s) infinite;
+/* Two motifs — each takes half the cycle */
+.motif-turn-2 {
+  animation: motif-turn-2 var(--cycle, 60s) ease-in-out var(--turn-delay, 0s) infinite backwards;
 }
-@keyframes motif-morph-2 {
-  0%   { opacity: 0; transform: scale(.84) rotate(-1.5deg); }
-  6%   { opacity: 1; transform: scale(1)   rotate(0deg);    }
-  44%  { opacity: 1; transform: scale(1)   rotate(0deg);    }
-  50%  { opacity: 0; transform: scale(1.1) rotate(1.5deg);  }
-  100% { opacity: 0; transform: scale(.84) rotate(-1.5deg); }
+@keyframes motif-turn-2 {
+  0%    { opacity: 0; transform: translate(var(--ox, 0px), var(--oy, 0px)); }
+  2%    { opacity: 1; transform: translate(var(--ox, 0px), var(--oy, 0px)); }
+  44%   { opacity: 1; transform: translate(var(--ox, 0px), var(--oy, 0px)); }
+  50%   { opacity: 0; transform: translate(var(--ox, 0px), var(--oy, 0px)); }
+  100%  { opacity: 0; transform: translate(var(--ox, 0px), var(--oy, 0px)); }
 }
-
-/* Three motifs sharing a slot — each holds for ~a third */
-.motif-morph-3 {
-  animation: motif-morph-3 var(--cycle, 66s) cubic-bezier(.34, .05, .28, 1)
-             var(--delay, 0s) infinite;
+.motif-turn-2 .motif-draw {
+  animation-name: motif-grow-turn-2;
+  animation-duration: var(--cycle, 60s);
+  animation-delay: var(--turn-delay, 0s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: backwards;
 }
-@keyframes motif-morph-3 {
-  0%    { opacity: 0; transform: scale(.84) rotate(-1.5deg); }
-  4%    { opacity: 1; transform: scale(1)   rotate(0deg);    }
-  29%   { opacity: 1; transform: scale(1)   rotate(0deg);    }
-  33.4% { opacity: 0; transform: scale(1.1) rotate(1.5deg);  }
-  100%  { opacity: 0; transform: scale(.84) rotate(-1.5deg); }
+@keyframes motif-grow-turn-2 {
+  0%       { stroke-dashoffset: 1.02; }
+  7%       { stroke-dashoffset: 0; }
+  100%     { stroke-dashoffset: 0; }
 }
-
-/* SHUFFLE — the full sequence. A motif grows in, holds, slowly shrinks away
-   to almost nothing, pauses, regrows, holds again, then hands over to the
-   next motif in the slot. So the eye sees two different gestures before the
-   symbol changes, and the surface never settles into one loop. */
-
-.motif-shuffle-2 {
-  animation: motif-shuffle-2 var(--cycle, 74s) cubic-bezier(.36, .06, .28, 1)
-             var(--delay, 0s) infinite;
+.motif-turn-2 .motif-dot {
+  animation-name: motif-bloom-turn-2;
+  animation-duration: var(--cycle, 60s);
+  animation-delay: var(--turn-delay, 0s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: backwards;
 }
-@keyframes motif-shuffle-2 {
-  0%    { opacity: 0;   transform: scale(.84) rotate(-1.5deg); }
-  5%    { opacity: 1;   transform: scale(1)   rotate(0deg);    }  /* grow in  */
-  18%   { opacity: 1;   transform: scale(1)   rotate(0deg);    }  /* hold     */
-  26%   { opacity: .10; transform: scale(.58) rotate(0deg);    }  /* recede   */
-  30%   { opacity: .10; transform: scale(.58) rotate(0deg);    }  /* absent   */
-  38%   { opacity: 1;   transform: scale(1.03) rotate(0deg);   }  /* regrow   */
-  41%   { opacity: 1;   transform: scale(1)   rotate(0deg);    }
-  45%   { opacity: 1;   transform: scale(1)   rotate(0deg);    }  /* hold     */
-  50%   { opacity: 0;   transform: scale(1.1) rotate(1.5deg);  }  /* hand over*/
-  100%  { opacity: 0;   transform: scale(.84) rotate(-1.5deg); }
+@keyframes motif-bloom-turn-2 {
+  0%, 7%   { opacity: 0; transform: scale(.15); }
+  10%      { opacity: 1; transform: scale(1); }
+  100%     { opacity: 1; transform: scale(1); }
 }
 
-.motif-shuffle-3 {
-  animation: motif-shuffle-3 var(--cycle, 96s) cubic-bezier(.36, .06, .28, 1)
-             var(--delay, 0s) infinite;
+/* Three motifs — each takes a third of the cycle */
+.motif-turn-3 {
+  animation: motif-turn-3 var(--cycle, 90s) ease-in-out var(--turn-delay, 0s) infinite backwards;
 }
-@keyframes motif-shuffle-3 {
-  0%    { opacity: 0;   transform: scale(.84) rotate(-1.5deg); }
-  3.5%  { opacity: 1;   transform: scale(1)   rotate(0deg);    }
-  12%   { opacity: 1;   transform: scale(1)   rotate(0deg);    }
-  17%   { opacity: .10; transform: scale(.58) rotate(0deg);    }
-  20%   { opacity: .10; transform: scale(.58) rotate(0deg);    }
-  25.5% { opacity: 1;   transform: scale(1.03) rotate(0deg);   }
-  27.5% { opacity: 1;   transform: scale(1)   rotate(0deg);    }
-  30%   { opacity: 1;   transform: scale(1)   rotate(0deg);    }
-  33.4% { opacity: 0;   transform: scale(1.1) rotate(1.5deg);  }
-  100%  { opacity: 0;   transform: scale(.84) rotate(-1.5deg); }
+@keyframes motif-turn-3 {
+  0%     { opacity: 0; transform: translate(var(--ox, 0px), var(--oy, 0px)); }
+  1.5%   { opacity: 1; transform: translate(var(--ox, 0px), var(--oy, 0px)); }
+  29%    { opacity: 1; transform: translate(var(--ox, 0px), var(--oy, 0px)); }
+  33.4%  { opacity: 0; transform: translate(var(--ox, 0px), var(--oy, 0px)); }
+  100%   { opacity: 0; transform: translate(var(--ox, 0px), var(--oy, 0px)); }
+}
+.motif-turn-3 .motif-draw {
+  animation-name: motif-grow-turn-3;
+  animation-duration: var(--cycle, 90s);
+  animation-delay: var(--turn-delay, 0s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: backwards;
+}
+@keyframes motif-grow-turn-3 {
+  0%       { stroke-dashoffset: 1.02; }
+  4.5%     { stroke-dashoffset: 0; }
+  100%     { stroke-dashoffset: 0; }
+}
+.motif-turn-3 .motif-dot {
+  animation-name: motif-bloom-turn-3;
+  animation-duration: var(--cycle, 90s);
+  animation-delay: var(--turn-delay, 0s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: backwards;
+}
+@keyframes motif-bloom-turn-3 {
+  0%, 4.5% { opacity: 0; transform: scale(.15); }
+  6.5%     { opacity: 1; transform: scale(1); }
+  100%     { opacity: 1; transform: scale(1); }
 }
 
-/* RECEDE — for a slot with only one motif and nothing to hand over to.
-   Slowly shrinks away to nothing, rests, then regrows. */
-.motif-recede {
-  animation: motif-recede var(--cycle, 48s) cubic-bezier(.36, .06, .28, 1)
-             var(--delay, 0s) infinite;
-  transform-origin: center;
-}
-@keyframes motif-recede {
-  0%,  34% { opacity: 1;   transform: scale(1);    }
-  48%      { opacity: .08; transform: scale(.55);  }  /* shrunk away */
-  56%      { opacity: .08; transform: scale(.55);  }  /* held absent */
-  72%      { opacity: 1;   transform: scale(1.03); }  /* regrow      */
-  78%,100% { opacity: 1;   transform: scale(1);    }
+/* ── Scroll gating ────────────────────────────────────────────────────────
+   Inside a decorative layer, hold every motif at its first frame until the
+   layer scrolls into view — otherwise a growth finishes long before you ever
+   reach it, and you arrive at a static drawing.
+
+   Scoped to `.motif-field` on purpose: functional motifs live outside one
+   (the Agwọ spinner, empty-state illustrations, Ìsì on a hire confirmation)
+   and must run the moment they mount. */
+
+.motif-field .motif-draw,
+.motif-field .motif-dot,
+.motif-field .motif-float,
+.motif-field .motif-float2,
+.motif-field .motif-turn-2,
+.motif-field .motif-turn-3 {
+  animation-play-state: paused;
 }
 
-/* BREATHE — the gentlest option: swells and settles, never disappears. */
-.motif-breathe {
-  animation: motif-breathe var(--cycle, 44s) ease-in-out var(--delay, 0s) infinite;
-  transform-origin: center;
-}
-@keyframes motif-breathe {
-  0%, 100% { opacity: var(--o-lo, .55); transform: scale(.9);  }
-  50%      { opacity: var(--o-hi, 1);   transform: scale(1.06); }
+.motif-field.motif-visible .motif-draw,
+.motif-field.motif-visible .motif-dot,
+.motif-field.motif-visible .motif-float,
+.motif-field.motif-visible .motif-float2,
+.motif-field.motif-visible .motif-turn-2,
+.motif-field.motif-visible .motif-turn-3 {
+  animation-play-state: running;
 }
 
 /* Agwọ — the app's loading spinner */
@@ -287,14 +305,10 @@ body {
   .motif-float,
   .motif-float2 { animation: none; }
   .agwo-spin   { animation: none; }
-  .motif-breathe,
-  .motif-recede { animation: none; opacity: 1; transform: none; }
   /* A slot with no animation would stack every motif on top of each other,
      so show only the first and hide the rest. */
-  .motif-morph,
-  .motif-shuffle-2,
-  .motif-shuffle-3 { animation: none; opacity: 0; transform: none; }
-  .motif-morph:first-child,
-  .motif-shuffle-2:first-child,
-  .motif-shuffle-3:first-child { opacity: 1; }
+  .motif-turn { animation: none; opacity: 0; transform: none; }
+  .motif-turn:first-child { opacity: 1; }
+  .motif-turn .motif-draw,
+  .motif-turn .motif-dot { animation: none; }
 }

@@ -6,7 +6,8 @@ import Link from 'next/link'
 import { AlertCircle, Mail, ArrowLeft, KeyRound, ShieldCheck, Clock } from 'lucide-react'
 import AuthShell from '@/components/layout/AuthShell'
 import Agwo from '@/components/motifs/Agwo'
-import Nku from '@/components/motifs/Nku'
+import MotifCycle from '@/components/motifs/MotifCycle'
+import { SWEEP } from '@/components/motifs'
 
 const POINTS = [
   { icon: KeyRound,    title: 'One-time link',      desc: 'Sent straight to your inbox.' },
@@ -47,10 +48,13 @@ export default function ForgotPasswordPage() {
       headline="It happens. Let's get you back in."
       points={POINTS}
       motif={
-        <Nku
+        <MotifCycle
+          motifs={SWEEP}
           size={420}
-          className="motif-float absolute -left-20 bottom-0 text-sand opacity-30"
-          style={{ '--fd': '24s' }}
+          cycle="90s"
+          float="motif-float"
+          floatDuration="24s"
+          className="absolute -left-20 bottom-0 text-sand opacity-30"
         />
       }
     >

@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Navbar from '@/components/layout/Navbar'
 import Agwo from '@/components/motifs/Agwo'
 import {
-  Briefcase, MapPin, Calendar, DollarSign,
+  Briefcase, MapPin, Calendar, Wallet,
   Users, Clock, FileText, ChevronRight,
   CheckCircle, AlertCircle, ArrowLeft, ChevronDown
 } from 'lucide-react'
@@ -167,7 +167,7 @@ export default function NewJobPage() {
     <div className="min-h-screen pb-20 md:pb-0 bg-cream">
       <Navbar profile={profile} />
 
-      <main className="max-w-2xl mx-auto px-4 pt-20 pb-16">
+      <main className="relative z-10 max-w-2xl mx-auto px-4 pt-20 pb-16">
 
         {/* Back */}
         <button
@@ -396,7 +396,7 @@ export default function NewJobPage() {
           {/* ── STEP 3 — Budget ── */}
           {step === 3 && (
             <div className="p-5 sm:p-6 space-y-5">
-              <SectionHeader icon={DollarSign} title="What's your budget?" />
+              <SectionHeader icon={Wallet} title="What's your budget?" />
 
               <div className="p-4 border border-line rounded-xs bg-cream">
                 <p className="text-xs text-ink-2">
@@ -519,7 +519,7 @@ export default function NewJobPage() {
                   { icon: Briefcase,  label: 'Service Needed',  value: categories.find(c => c.id === form.category_id)?.name || '—' },
                   { icon: Calendar,   label: 'Event Date',      value: form.event_date ? new Date(form.event_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—' },
                   { icon: MapPin,     label: 'Location',        value: form.location },
-                  { icon: DollarSign, label: 'Budget',          value: form.budget_min ? `${sym}${parseInt(form.budget_min).toLocaleString()} — ${sym}${parseInt(form.budget_max).toLocaleString()} ${form.currency}` : `Up to ${sym}${parseInt(form.budget_max).toLocaleString()} ${form.currency}` },
+                  { icon: Wallet, label: 'Budget',          value: form.budget_min ? `${sym}${parseInt(form.budget_min).toLocaleString()} — ${sym}${parseInt(form.budget_max).toLocaleString()} ${form.currency}` : `Up to ${sym}${parseInt(form.budget_max).toLocaleString()} ${form.currency}` },
                   form.headcount     && { icon: Users,  label: 'Guests',   value: `~${form.headcount} people` },
                   form.duration_hours && { icon: Clock, label: 'Duration', value: `${form.duration_hours} hours` },
                 ].filter(Boolean).map(item => (

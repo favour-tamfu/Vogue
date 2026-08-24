@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import {
   Bell, User, Settings, LogOut, ChevronDown,
   Briefcase, MessageSquare, CheckCheck,
-  Zap, Star, DollarSign
+  Zap, Star, Wallet, ShieldCheck, LifeBuoy
 } from 'lucide-react'
 import Logo from '@/components/brand/Logo'
 
@@ -22,7 +22,7 @@ function timeAgo(dateStr) {
 
 // Types must match exactly what the API inserts (CLAUDE.md §7.2).
 const NOTIF_CONFIG = {
-  new_bid:        { icon: DollarSign,    className: 'bg-ochre-soft text-ochre-text'          },
+  new_bid:        { icon: Wallet,        className: 'bg-ochre-soft text-ochre-text'          },
   bid_accepted:   { icon: CheckCheck,    className: 'bg-verified-bg text-verified'           },
   hire_confirmed: { icon: Briefcase,     className: 'bg-verified-bg text-verified'           },
   new_message:    { icon: MessageSquare, className: 'bg-terracotta-soft text-terracotta'     },
@@ -285,9 +285,11 @@ export default function Navbar({ profile }) {
                       {/* Menu links */}
                       <div className="p-1">
                         {[
-                          { label: 'Edit Profile', href: '/profile/edit', icon: User       },
-                          { label: 'Settings',     href: '/settings',     icon: Settings   },
-                          { label: 'Dashboard',    href: '/dashboard',    icon: Zap        },
+                          { label: 'Edit Profile',   href: '/profile/edit', icon: User        },
+                          { label: 'Settings',       href: '/settings',     icon: Settings    },
+                          { label: 'Dashboard',      href: '/dashboard',    icon: Zap         },
+                          { label: 'Trust & Safety', href: '/trust',        icon: ShieldCheck },
+                          { label: 'Support',        href: '/support',      icon: LifeBuoy    },
                         ].map(item => (
                           <Link
                             key={item.label}

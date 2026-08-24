@@ -122,7 +122,7 @@ export default async function FeedPage() {
     <div className="min-h-screen bg-cream relative">
       <AppBackdrop section="feed" />
       <Navbar profile={currentUser} />
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-20 pb-24">
+      <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pt-20 pb-24">
         <Feed
           feedItems={feedItems}
           currentUser={currentUser}

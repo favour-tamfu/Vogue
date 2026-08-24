@@ -6,8 +6,8 @@ import Link from 'next/link'
 import { AlertCircle, Eye, EyeOff, MessagesSquare, Briefcase, Star } from 'lucide-react'
 import AuthShell from '@/components/layout/AuthShell'
 import Agwo from '@/components/motifs/Agwo'
-import Nnyo from '@/components/motifs/Nnyo'
-import Odu from '@/components/motifs/Odu'
+import MotifCycle from '@/components/motifs/MotifCycle'
+import { SPIRAL, SWEEP } from '@/components/motifs'
 
 const POINTS = [
   { icon: Briefcase,     title: 'Your jobs and bids',   desc: 'Pick up exactly where you left off.' },
@@ -54,16 +54,22 @@ export default function LoginPage() {
       motif={
         <>
           {/* Nnyọ — the mirror spiral. Returning, coming back around. */}
-          <Nnyo
+          <MotifCycle
+            motifs={SPIRAL}
             size={420}
-            className="motif-float absolute -left-24 top-1/4 text-sand opacity-30"
-            style={{ '--fd': '23s' }}
+            cycle="96s"
+            float="motif-float"
+            floatDuration="23s"
+            className="absolute -left-24 top-1/4 text-sand opacity-30"
           />
-          <Odu
-            animate={false}
+          <MotifCycle
+            motifs={SWEEP}
             size={220}
-            className="motif-float2 absolute -right-16 -bottom-10 text-sand opacity-20"
-            style={{ '--fd': '27s', '--delay': '1.6s' }}
+            cycle="82s"
+            float="motif-float2"
+            floatDuration="27s"
+            delay="1.6s"
+            className="absolute -right-16 -bottom-10 text-sand opacity-20"
           />
         </>
       }

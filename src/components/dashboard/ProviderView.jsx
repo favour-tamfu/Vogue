@@ -4,11 +4,12 @@ import Link from 'next/link'
 import ReviewPrompt from '@/components/reviews/ReviewPrompt'
 import {
   Search, Send, MessageSquare, User, ChevronRight,
-  MapPin, DollarSign, Users, Star, Clock, ArrowRight,
-  AlertCircle, CheckCircle, XCircle, Upload,
+  MapPin, Wallet, Users, Star, Clock, ArrowRight,
+  AlertCircle, XCircle, Upload,
   Award, Briefcase
 } from 'lucide-react'
 import { formatBudget } from '@/lib/currency'
+import VerifiedBadge from '@/components/ui/VerifiedBadge'
 
 function timeAgo(dateStr) {
   const diff  = Date.now() - new Date(dateStr).getTime()
@@ -198,7 +199,7 @@ export default function ProviderView({
                       <MapPin size={10} strokeWidth={1.5} /> {job.location}
                     </span>
                     <span className="flex items-center gap-1 text-xs text-ink-3">
-                      <DollarSign size={10} strokeWidth={1.5} />
+                      <Wallet size={10} strokeWidth={1.5} />
                       {formatBudget(job.budget_min, job.budget_max, job.currency)}
                     </span>
                     <span className="flex items-center gap-1 text-xs text-ink-3">
@@ -278,16 +279,17 @@ export default function ProviderView({
           </div>
         )}
 
-        <div className="border border-ink rounded-md p-4 bg-ink">
-          <span className="t-micro block mb-2 text-sand">
+        <div className="border border-line rounded-md p-4 bg-cream-2">
+          <span className="t-micro block mb-2 text-terracotta">
             Need a Service?
           </span>
-          <p className="text-xs leading-relaxed mb-3 text-ink-3">
+          <p className="text-xs leading-relaxed mb-3 text-ink-2">
             Post a job as a hirer and receive bids from other professionals.
           </p>
           <Link href="/jobs/new"
-            className="flex items-center justify-center gap-1.5 w-full py-2 text-sm font-semibold text-white
-                       rounded-sm bg-terracotta transition-colors hover:bg-terracotta-deep">
+            className="flex items-center justify-center gap-1.5 w-full py-2 text-sm font-semibold
+                       rounded-sm border border-terracotta text-terracotta transition-colors
+                       hover:bg-terracotta-soft">
             Post a Job <ArrowRight size={13} />
           </Link>
         </div>
@@ -339,7 +341,7 @@ function ProfileCard({ profile, isVerified }) {
             <span className="font-semibold text-sm truncate text-ink">
               {profile?.full_name}
             </span>
-            {isVerified && <CheckCircle size={12} className="text-verified flex-shrink-0" />}
+            {isVerified && <VerifiedBadge />}
           </div>
           <div className="flex items-center gap-1 mt-0.5">
             <MapPin size={10} strokeWidth={1.5} className="text-ink-3" />

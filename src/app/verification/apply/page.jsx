@@ -30,7 +30,7 @@ export default async function VerificationApplyPage() {
     <div className="min-h-screen bg-cream relative">
       <AppBackdrop section="verification" />
       <Navbar profile={profile} />
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-20 pb-24">
+      <main className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 pt-20 pb-24">
         <VerificationForm
           profile={profile}
           existingApplication={application}

@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { ChevronLeft, Send, CheckCircle } from 'lucide-react'
+import { ChevronLeft, Send } from 'lucide-react'
+import VerifiedBadge from '@/components/ui/VerifiedBadge'
 
 function formatTime(dateStr) {
   return new Date(dateStr).toLocaleTimeString('en-GB', {
@@ -166,9 +167,7 @@ export default function Conversation({ conversation, initialMessages, currentUse
             <span className="text-sm font-semibold text-ink">
               {otherUser?.full_name}
             </span>
-            {otherUser?.is_verified && (
-              <CheckCircle size={12} strokeWidth={1.5} className="text-verified" />
-            )}
+            {otherUser?.is_verified && <VerifiedBadge />}
           </div>
           {conversation.job && (
             <p className="text-xs truncate text-ink-3">

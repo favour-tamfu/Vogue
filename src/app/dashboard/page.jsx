@@ -184,7 +184,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-cream relative">
       <AppBackdrop section="dashboard" />
       <Navbar profile={profile} />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
         {profile.role === 'both' ? (
           <BothView
             profile={profile}

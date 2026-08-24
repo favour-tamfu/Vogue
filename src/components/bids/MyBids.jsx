@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
-  MapPin, DollarSign, Clock,
+  MapPin, Wallet, Clock,
   CheckCircle, XCircle, AlertCircle,
   Eye, Trash2, Calendar, ArrowRight
 } from 'lucide-react'
@@ -182,7 +182,7 @@ export default function MyBids({ bids }) {
                           {bid.job?.event_date && formatDate(bid.job.event_date)}
                         </span>
                         <span className="flex items-center gap-1 text-xs text-ink-2">
-                          <DollarSign size={11} strokeWidth={1.5} className="text-ink-3" />
+                          <Wallet size={11} strokeWidth={1.5} className="text-ink-3" />
                           {formatBudget(bid.job?.budget_min, bid.job?.budget_max, bid.job?.currency)}
                         </span>
                       </div>

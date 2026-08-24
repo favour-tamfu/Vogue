@@ -4,8 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
-  MapPin, Star, Briefcase, CheckCircle,
-  Clock, Heart, Share2,
+  MapPin, Star, Briefcase, Clock, Heart, Share2,
   ChevronLeft, Award, Image as ImageIcon
 } from 'lucide-react'
 import Link from 'next/link'
@@ -115,9 +114,7 @@ export default function ProviderProfile({
                 <h1 className="t-h2 text-ink">
                   {provider.full_name}
                 </h1>
-                {provider.is_verified && (
-                  <CheckCircle size={16} strokeWidth={1.5} className="text-verified" />
-                )}
+                {provider.is_verified && <VerifiedBadge />}
               </div>
 
               {/* Location */}

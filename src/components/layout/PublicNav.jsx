@@ -16,10 +16,10 @@ export default function PublicNav() {
 
           <div className="hidden md:flex items-center gap-6">
             <Link href="/jobs" className="text-sm font-medium text-ink-2 hover:text-ink transition-colors">
-              Browse Jobs
+              Jobs
             </Link>
             <Link href="/providers" className="text-sm font-medium text-ink-2 hover:text-ink transition-colors">
-              Find Providers
+              Providers
             </Link>
             <Link href="/trust" className="text-sm font-medium text-ink-2 hover:text-ink transition-colors">
               Trust &amp; Safety

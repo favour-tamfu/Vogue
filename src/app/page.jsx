@@ -7,7 +7,7 @@ import PublicNav from '@/components/layout/PublicNav'
 import Footer from '@/components/layout/Footer'
 import MotifLayer from '@/components/motifs/MotifLayer'
 import MotifCycle from '@/components/motifs/MotifCycle'
-import { Omumu, Eke, Odu, Osisi, Akwukwo, Nnyo, Nku, Ugo, Ntupo } from '@/components/motifs'
+import { Ntupo, GROWTH, SWEEP, SPIRAL, PLUME } from '@/components/motifs'
 import { PRODUCT_NAME, PRODUCT_DESCRIPTION } from '@/lib/brand'
 
 const STEPS = [
@@ -47,31 +47,22 @@ export default function LandingPage() {
       {/* ── HERO ── */}
       <section className="relative overflow-hidden pt-24 pb-14 sm:pt-32 sm:pb-20 px-4 bg-ink">
         <MotifLayer>
-          {/* Phone — the hero is centred text on a narrow column, so ornament
-              hugs the corners and stays well clear of the headline. */}
+          {/* Phone — a single fragment in the corner. At 360px the content
+              column IS the viewport, so anything larger or more central
+              tangles with the copy rather than sitting behind it. */}
           <MotifCycle
-            motifs={[Omumu, Osisi, Ugo]}
-            size={190}
+            motifs={GROWTH}
+            size={120}
             cycle="63s"
             float="motif-float"
             floatDuration="19s"
-            className="absolute -left-14 -bottom-8 text-sand opacity-30 sm:hidden"
-          />
-          <MotifCycle
-            motifs={[Odu, Nku]}
-            size={130}
-            cycle="51s"
-            float="motif-float2"
-            floatDuration="24s"
-            delay="1.2s"
-            animateFirst={false}
-            className="absolute -right-10 -top-4 text-sand opacity-20 sm:hidden"
+            className="absolute -left-10 -bottom-6 text-sand opacity-[0.14] sm:hidden"
           />
 
           {/* Tablet and up — Ọmụmụ and Eke anchor the two sides, each handing
               over to a different motif on a long cycle. */}
           <MotifCycle
-            motifs={[Omumu, Akwukwo, Osisi]}
+            motifs={GROWTH}
             size={250}
             cycle="66s"
             float="motif-float"
@@ -79,7 +70,7 @@ export default function LandingPage() {
             className="absolute -left-8 bottom-0 text-sand opacity-40 hidden sm:inline-block"
           />
           <MotifCycle
-            motifs={[Eke, Nnyo, Ugo]}
+            motifs={SWEEP}
             size={290}
             cycle="71s"
             float="motif-float2"
@@ -88,13 +79,12 @@ export default function LandingPage() {
             className="absolute -right-12 -bottom-8 text-sand opacity-35 hidden sm:inline-block"
           />
           <MotifCycle
-            motifs={[Odu, Nku]}
+            motifs={SPIRAL}
             size={150}
             cycle="54s"
             float="motif-float"
             floatDuration="22s"
             delay="2.4s"
-            animateFirst={false}
             className="absolute right-1/4 -top-10 text-sand opacity-20 hidden lg:inline-block"
           />
         </MotifLayer>
@@ -163,13 +153,23 @@ export default function LandingPage() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" className="relative overflow-hidden py-20 px-4 bg-cream scroll-mt-14">
+      <section id="how-it-works" className="relative overflow-hidden py-14 sm:py-20 px-4 bg-cream scroll-mt-14">
         <MotifLayer>
-          <Odu
-            animate={false}
+          <MotifCycle
+            motifs={SWEEP}
+            size={130}
+            cycle="88s"
+            float="motif-float2"
+            floatDuration="23s"
+            className="absolute -left-10 -top-4 text-terracotta opacity-[0.16] sm:hidden"
+          />
+          <MotifCycle
+            motifs={SWEEP}
             size={260}
-            className="motif-float2 absolute -left-16 top-10 text-terracotta opacity-30"
-            style={{ '--fd': '23s' }}
+            cycle="92s"
+            float="motif-float2"
+            floatDuration="23s"
+            className="absolute -left-16 top-10 text-terracotta opacity-30 hidden sm:inline-block"
           />
         </MotifLayer>
 
@@ -201,13 +201,23 @@ export default function LandingPage() {
       </div>
 
       {/* ── FEATURES ── */}
-      <section className="relative overflow-hidden py-20 px-4 border-t border-line bg-surface">
+      <section className="relative overflow-hidden py-14 sm:py-20 px-4 border-t border-line bg-surface">
         <MotifLayer>
-          <Osisi
-            animate={false}
+          <MotifCycle
+            motifs={GROWTH}
+            size={130}
+            cycle="84s"
+            float="motif-float"
+            floatDuration="26s"
+            className="absolute -right-10 -bottom-6 text-terracotta opacity-[0.14] sm:hidden"
+          />
+          <MotifCycle
+            motifs={GROWTH}
             size={300}
-            className="motif-float absolute -right-14 bottom-0 text-terracotta opacity-25"
-            style={{ '--fd': '26s' }}
+            cycle="98s"
+            float="motif-float"
+            floatDuration="26s"
+            className="absolute -right-14 bottom-0 text-terracotta opacity-25 hidden sm:inline-block"
           />
         </MotifLayer>
 
@@ -236,19 +246,32 @@ export default function LandingPage() {
       </section>
 
       {/* ── SERVICES ── */}
-      <section className="relative overflow-hidden py-20 px-4 bg-cream">
+      <section className="relative overflow-hidden py-14 sm:py-20 px-4 bg-cream">
         <MotifLayer>
-          <Akwukwo
-            animate={false}
-            size={220}
-            className="motif-float2 absolute left-4 -bottom-10 text-terracotta opacity-30 hidden md:block"
-            style={{ '--fd': '20s' }}
+          <MotifCycle
+            motifs={PLUME}
+            size={130}
+            cycle="86s"
+            float="motif-float2"
+            floatDuration="20s"
+            className="absolute -left-10 -bottom-6 text-terracotta opacity-[0.15] md:hidden"
           />
-          <Akwukwo
-            animate={false}
+          <MotifCycle
+            motifs={PLUME}
+            size={220}
+            cycle="90s"
+            float="motif-float2"
+            floatDuration="20s"
+            className="absolute left-4 -bottom-10 text-terracotta opacity-30 hidden md:inline-block"
+          />
+          <MotifCycle
+            motifs={GROWTH}
             size={150}
-            className="motif-float absolute right-8 top-4 text-terracotta opacity-20 hidden lg:block"
-            style={{ '--fd': '24s', '--delay': '1.8s' }}
+            cycle="76s"
+            float="motif-float"
+            floatDuration="24s"
+            delay="1.8s"
+            className="absolute right-8 top-4 text-terracotta opacity-20 hidden lg:inline-block"
           />
         </MotifLayer>
 
@@ -270,7 +293,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── PRICING ── */}
-      <section id="pricing" className="py-20 px-4 border-t border-line bg-surface scroll-mt-14">
+      <section id="pricing" className="py-14 sm:py-20 px-4 border-t border-line bg-surface scroll-mt-14">
         <div className="max-w-3xl mx-auto text-center">
           <p className="t-micro mb-2 text-terracotta">What It Costs</p>
           <h2 className="t-h1 text-ink mb-4">Free while we build the market</h2>
@@ -281,13 +304,13 @@ export default function LandingPage() {
             there are jobs worth winning is how that happens.
           </p>
 
-          <div className="inline-flex flex-col sm:flex-row items-stretch gap-3 text-left">
-            <div className="flex-1 border border-line rounded-md p-6 bg-cream min-w-56">
+          <div className="flex flex-col sm:flex-row items-stretch gap-3 text-left max-w-lg mx-auto">
+            <div className="flex-1 border border-line rounded-md p-6 bg-cream">
               <p className="t-micro text-ink-3 mb-2">Hirers</p>
               <p className="t-hero text-ink t-money leading-none mb-2">₦0</p>
               <p className="text-xs text-ink-2">Post unlimited jobs and hire without a fee.</p>
             </div>
-            <div className="flex-1 border border-terracotta rounded-md p-6 bg-terracotta-soft min-w-56">
+            <div className="flex-1 border border-terracotta rounded-md p-6 bg-terracotta-soft">
               <p className="t-micro text-terracotta mb-2">Providers</p>
               <p className="t-hero text-terracotta t-money leading-none mb-2">₦0</p>
               <p className="text-xs text-ink-2">Bid on every open job once you are verified.</p>
@@ -302,17 +325,19 @@ export default function LandingPage() {
       </section>
 
       {/* ── DUAL CTA ── */}
-      <section className="py-20 px-4 border-t border-line bg-cream">
+      <section className="py-14 sm:py-20 px-4 border-t border-line bg-cream">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
             <div className="relative overflow-hidden p-8 border border-ink rounded-md bg-ink">
               <MotifLayer>
-                <Nnyo
-                  animate={false}
+                <MotifCycle
+                  motifs={SPIRAL}
                   size={200}
-                  className="motif-float absolute -right-10 -bottom-10 text-sand opacity-25"
-                  style={{ '--fd': '21s' }}
+                  cycle="80s"
+                  float="motif-float"
+                  floatDuration="21s"
+                  className="absolute -right-10 -bottom-10 text-sand opacity-25"
                 />
               </MotifLayer>
               <div className="relative" style={{ zIndex: 1 }}>
@@ -331,10 +356,14 @@ export default function LandingPage() {
 
             <div className="relative overflow-hidden p-8 border border-terracotta rounded-md bg-terracotta-soft">
               <MotifLayer>
-                <Nnyo
+                <MotifCycle
+                  motifs={SPIRAL}
                   size={200}
-                  className="motif-float2 absolute -right-10 -bottom-10 text-terracotta opacity-25"
-                  style={{ '--fd': '27s', '--delay': '1s' }}
+                  cycle="94s"
+                  float="motif-float2"
+                  floatDuration="27s"
+                  delay="1s"
+                  className="absolute -right-10 -bottom-10 text-terracotta opacity-25"
                 />
               </MotifLayer>
               <div className="relative" style={{ zIndex: 1 }}>

@@ -36,7 +36,7 @@ export default async function MessagesPage() {
     <div className="min-h-screen bg-cream relative">
       <AppBackdrop section="messages" />
       <Navbar profile={profile} />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
+      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
         <Inbox
           conversations={conversations || []}
           currentUser={profile}

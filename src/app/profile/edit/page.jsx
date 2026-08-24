@@ -32,7 +32,7 @@ export default async function ProfileEditPage() {
     <div className="min-h-screen bg-cream relative">
       <AppBackdrop section="profile" />
       <Navbar profile={profile} />
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-20 pb-24">
+      <main className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 pt-20 pb-24">
         <ProfileEdit
           profile={profile}
           categories={categories || []}

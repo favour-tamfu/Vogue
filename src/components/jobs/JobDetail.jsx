@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
-  MapPin, Calendar, DollarSign, Users, Clock,
+  MapPin, Calendar, Wallet, Users, Clock,
   ChevronLeft, CheckCircle, Star, Shield,
   AlertCircle, Send, ArrowRight, Briefcase,
   Award
@@ -114,7 +114,7 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
                   value: job.location
                 },
                 {
-                  icon: DollarSign,
+                  icon: Wallet,
                   label: 'Budget',
                   value: formatBudget(job.budget_min, job.budget_max, job.currency)
                 },
@@ -306,7 +306,7 @@ export default function JobDetail({ job, bids, myBid, hire, profile, justPosted 
                 { icon: Briefcase, label: 'Service', value: job.category?.name || '—' },
                 { icon: Calendar,  label: 'Date',    value: new Date(job.event_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) },
                 { icon: MapPin,    label: 'Location', value: job.location },
-                { icon: DollarSign,label: 'Budget',  value: formatBudget(job.budget_min, job.budget_max, job.currency) },
+                { icon: Wallet,label: 'Budget',  value: formatBudget(job.budget_min, job.budget_max, job.currency) },
               ].map(item => (
                 <div key={item.label} className="flex items-start gap-2.5">
                   <item.icon size={13} strokeWidth={1.5} className="text-ink-3 flex-shrink-0 mt-0.5" />
